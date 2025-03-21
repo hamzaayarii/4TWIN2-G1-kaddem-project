@@ -1,3 +1,2 @@
-### Modules
+### Module
 - **University**
-- **Department**  
