@@ -22,4 +22,5 @@ public interface IUniversiteService {
     public Set<Departement> retrieveDepartementsByUniversite(Integer idUniversite);
 
 
+ //List<Departement> findActiveDepartements(Integer idUniversite, int minEtudiants, int minProjets);
 }
