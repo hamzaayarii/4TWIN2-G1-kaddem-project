@@ -1,4 +1,4 @@
-package tn.esprit.spring.kaddem;
+package tn.esprit.spring.kaddem.services;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -9,7 +9,6 @@ import org.mockito.Mock;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import tn.esprit.spring.kaddem.entities.Universite;
 import tn.esprit.spring.kaddem.repositories.UniversiteRepository;
-import tn.esprit.spring.kaddem.services.UniversiteServiceImpl;
 
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class UniversiteServiceUnitTest {
+class UniversiteServiceImplTestMockito {
 
 
     @Mock
