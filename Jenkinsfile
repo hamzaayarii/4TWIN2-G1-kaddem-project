@@ -20,13 +20,13 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-    stage('SonarQube Analysis') {
-               steps {
-                   withSonarQubeEnv(credentialsId: 'sonarqube-token') {
-                       sh 'mvn sonar:sonar -Dsonar.projectKey=my-project -Dsonar.host.url=http://192.168.33.10:9000'
-                   }
-               }
-           }
+    stage('MVN SONARQUBE') {
+        steps {
+            withSonarQubeEnv('sonarqube-token') {
+                sh 'mvn sonar:sonar -Dsonar.projectKey=my-project -Dmaven.test.skip=true'
+            }
+        }
+    }
 
 stage('Deploy to Nexus') {
     steps {
