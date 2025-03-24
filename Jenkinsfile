@@ -10,7 +10,7 @@ pipeline {
     stages {
         stage('GIT') {
             steps {
-                git branch: 'main',
+                git branch: 'AyariHamza-4TWIN2-G1',
                     url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
             }
         }
@@ -20,16 +20,23 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-   stage('SonarQube Analysis') {
-             steps{
-                 script {
-                     def scannerHome = tool 'scanner'
-                    withSonarQubeEnv {
-                         sh "${scannerHome}/bin/sonar-scanner"
-                                      }
-                          }
-                      }
-   }
+    stage('SonarQube Analysis') {
+               steps {
+                   script {
+                       def scannerHome = tool 'scanner'
+                       withSonarQubeEnv() {
+                           sh """
+                               ${scannerHome}/bin/sonar-scanner \
+                               -Dsonar.projectKey=kaddem-devops \
+                               -Dsonar.projectName='Kaddem DevOps Project' \
+                               -Dsonar.sources=src/main \
+                               -Dsonar.java.binaries=target/classes \
+                               -Dsonar.scm.provider=git
+                           """
+                       }
+                   }
+               }
+           }
 
 stage('Deploy to Nexus') {
     steps {
