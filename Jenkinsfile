@@ -49,16 +49,11 @@ pipeline {
         }
 
 
-         stage('docker image Stage') {
-              steps {
-                      // Build from local directory
-                      sh 'docker build -t kaddem:1.0.0 .'
-                      // Tag for Docker Hub
-                      sh 'docker tag kaddem:1.0.0 hamzabox/kaddem-devops:1.0.0'
-                      // Push to Docker Hub (requires Docker Hub credentials)
-                      sh 'docker push hamzabox/kaddem-devops:1.0.0'
-                  }
-     }
+          stage('docker image Stage') {
+                               steps {
+                                   sh 'docker build -t timesheet:1.0.0 .'
+                     }
+                 }
 
 
 
