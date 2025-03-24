@@ -50,9 +50,14 @@ pipeline {
 
 
          stage('docker image Stage') {
-               steps {
-              sh 'docker build -t kaddem:1.0.0 https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
-           }
+              steps {
+                      // Build from local directory
+                      sh 'docker build -t kaddem:1.0.0 .'
+                      // Tag for Docker Hub
+                      sh 'docker tag kaddem:1.0.0 hamzabox/kaddem-devops:1.0.0'
+                      // Push to Docker Hub (requires Docker Hub credentials)
+                      sh 'docker push hamzabox/kaddem-devops:1.0.0'
+                  }
      }
 
 
