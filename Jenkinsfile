@@ -21,20 +21,15 @@ pipeline {
             }
         }
         stage('MVN SONARQUBE') {
-            steps {
-                script {
-                    withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                            mvn sonar:sonar \
-                            -Dsonar.host.url=http://192.168.33.10:9000 \
-                            -Dsonar.projectKey=kaddem \
-                            -Dsonar.login=$SONAR_TOKEN \
-                            -Dmaven.test.skip=true
-                        """
-                    }
+                   steps {
+                       script {
+
+                           withCredentials([string(credentialsId: 'sonarqube-token', variable: 'sonarqube')]) {
+                               sh "mvn sonar:sonar -Dsonar.login=${sonarqube} -Dmaven.test.skip=true"
+                           }
+                       }
+                   }
                 }
-            }
-        }
 
 
 stage('Deploy to Nexus') {
