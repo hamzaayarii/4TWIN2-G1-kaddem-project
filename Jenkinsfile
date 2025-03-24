@@ -38,21 +38,15 @@ pipeline {
                }
            }
 
-stage('Deploy to Nexus') {
-    steps {
-        script {
-            sh """
-            mvn deploy:deploy-file -Dfile=target/kaddem-0.0.1-SNAPSHOT.jar \
-                -DrepositoryId=nexus-snapshots-repository \
-                -Durl=http://192.168.33.10:8083/repository/maven-snapshots/ \
-                -DgroupId=tn.esprit.spring \
-                -DartifactId=kaddem \
-                -Dversion=0.0.1-SNAPSHOT \
-                -Dpackaging=jar
-            """
+ stage('Deploy to Nexus') {
+            steps {
+                script {
+                    sh """
+                    mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8083/repository/maven-snapshots/
+                    """
+                }
+            }
         }
-    }
-}
 
 
          stage('docker image Stage') {
