@@ -20,13 +20,16 @@ pipeline {
                 sh 'mvn clean compile'
             }
         }
-    stage('MVN SONARQUBE') {
-        steps {
-            withSonarQubeEnv('sonarqube-token') {
-                sh 'mvn sonar:sonar -Dsonar.projectKey=my-project -Dmaven.test.skip=true'
-            }
-        }
-    }
+   stage('SonarQube Analysis') {
+             steps{
+                 script {
+                     def scannerHome = tool 'scanner'
+                    withSonarQubeEnv {
+                         sh "${scannerHome}/bin/sonar-scanner"
+                                      }
+                          }
+                      }
+   }
 
 stage('Deploy to Nexus') {
     steps {
