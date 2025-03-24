@@ -7,6 +7,11 @@ pipeline {
         maven 'M2_HOME'
     }
 
+environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Create this in Jenkins
+        IMAGE_NAME = "hamzabox/kaddem-devops"
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
     stages {
         stage('GIT') {
             steps {
@@ -49,13 +54,53 @@ pipeline {
         }
 
 
-          stage('docker image Stage') {
-                               steps {
-                                   sh 'docker build -t timesheet:1.0.0 .'
+         stage('Build Docker Image') {
+                     steps {
+                         sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
+                         // Also tag as latest for convenience
+                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
                      }
                  }
 
+                 stage('Push to Docker Hub') {
+                     steps {
+                         script {
+                             // Login to Docker Hub
+                             sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
 
+                             // Push the images
+                             sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
+                             sh "docker push ${IMAGE_NAME}:latest"
+                         }
+                     }
+                 }
 
-}
-}
+                 stage('Deploy with Docker Compose') {
+                     steps {
+                         // Update the docker-compose.yml to use the new image
+                         sh """
+                         sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' docker-compose.yml
+                         """
+
+                         // Deploy with docker-compose
+                         sh 'docker compose down'
+                         sh 'docker compose up -d'
+                     }
+                 }
+             }
+
+             post {
+                 always {
+                     // Clean up
+                     sh 'docker logout'
+                     // Clean workspace
+                     cleanWs()
+                 }
+                 success {
+                     echo 'Pipeline executed successfully!'
+                 }
+                 failure {
+                     echo 'Pipeline execution failed!'
+                 }
+             }
+         }
