@@ -26,7 +26,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                         sh """
                             mvn sonar:sonar \
-                            -Dsonar.host.url=http://your-sonarqube-server:9000 \
+                            -Dsonar.host.url=http://192.168.33.10:9000 \
                             -Dsonar.projectKey=kaddem \
                             -Dsonar.login=$SONAR_TOKEN \
                             -Dmaven.test.skip=true
