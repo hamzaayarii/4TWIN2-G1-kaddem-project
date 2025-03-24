@@ -21,5 +21,9 @@ public interface IUniversiteService {
 
     public Set<Departement> retrieveDepartementsByUniversite(Integer idUniversite);
 
+ public List<Departement> findDepartementsWithStudentCount(Integer idUniversite, int minimumStudents);
 
+/* public Map<String, Integer> getStatistiquesEtudiantsParDepartement(Integer idUniversite);
+ public double getTauxRemplissageUniversite(Integer idUniversite);
+ public List<Universite> findUniversitesByAccreditationAndCapacite(boolean accreditation, int capaciteMinimum);*/
 }
