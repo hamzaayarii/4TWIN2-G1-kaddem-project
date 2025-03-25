@@ -17,46 +17,44 @@ pipeline {
     }
 
     stages {
-        stage('Backend - Git Checkout') {
-            steps {
-                git branch: 'AyariHamza-4TWIN2-G1',
-                    url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
-            }
-        }
+        stage('Checkout Repositories') {
+                    steps {
+                        script {
+                            // Create separate directories for each repository
+                            sh 'mkdir -p backend frontend'
 
-        stage('Frontend - Git Checkout') {
-            steps {
-                git branch: 'pre-prod',
-                    url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
-            }
-        }
+                            // Checkout backend
+                            dir('backend') {
+                                git branch: 'AyariHamza-4TWIN2-G1',
+                                    url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
+                            }
 
-        stage('Backend - Compile') {
-            steps {
-                script {
-                    // Print current directory and list files
-                    sh 'pwd'
-                    sh 'ls -la'
-
-                    // Check if pom.xml exists
-                    def pomExists = fileExists 'pom.xml'
-
-                    if (pomExists) {
-                        // Run Maven if pom.xml is present
-                        sh 'mvn clean compile'
-                    } else {
-                        // Throw an error if pom.xml is missing
-                        error "pom.xml not found in the current directory"
+                            // Checkout frontend
+                            dir('frontend') {
+                                git branch: 'pre-prod',
+                                    url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
+                            }
+                        }
                     }
                 }
-            }
-        }
+
+
+        stage('Backend - Compile') {
+                   steps {
+                       dir('backend') {
+                           sh 'mvn clean compile'
+                       }
+                   }
+               }
 
         stage('Frontend - Install Dependencies') {
-            steps {
-                sh 'npm install'
-            }
-        }
+                   steps {
+                       dir('frontend') {
+                           sh 'npm install'
+                       }
+                   }
+               }
+
 
         stage('SonarQube Analysis') {
             steps {
@@ -78,31 +76,42 @@ pipeline {
 
         stage('Frontend - Run Tests') {
             steps {
+             dir('frontend') {
+
                 sh 'npm test'
+            }
             }
         }
 
         stage('Deploy to Nexus') {
             steps {
                 script {
+                 dir('backend') {
+
                     sh """
                     mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8083/repository/maven-snapshots/
                     """
+                }
                 }
             }
         }
 
         stage('Backend - Build Docker Image') {
             steps {
+             dir('backend') {
+
                 sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
                 sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
+            }
             }
         }
 
         stage('Frontend - Build Docker Image') {
             steps {
+            dir('frontend') {
                 sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
                 sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
+            }
             }
         }
 
@@ -112,12 +121,15 @@ pipeline {
                     sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
 
                     // Push Backend Images
+                    dir('backend') {
                     sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
                     sh "docker push ${BACKEND_IMAGE_NAME}:latest"
-
+}
+dir('frontend') {
                     // Push Frontend Images
                     sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
                     sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                    }
                 }
             }
         }
