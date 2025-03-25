@@ -11,10 +11,11 @@ services:
       - 3306:3306
     volumes:
       - db:/var/lib/mysql
-  app-kaddem:
+
+  backend:
     depends_on:
       - mysqldb
-    image: hamzabox/kaddem-devops:1.0.0
+    image: hamzabox/kaddem-devops:${BACKEND_IMAGE_TAG:-latest}
     #build : ./
     restart: on-failure
     ports:
@@ -29,6 +30,13 @@ services:
       }'
     stdin_open: true
     tty: true
+
+  frontend:
+    image: hamzabox/kaddem-frontend:${FRONTEND_IMAGE_TAG:-latest}
+    ports:
+      - 80:80
+    depends_on:
+      - backend
 
 volumes:
   db :

@@ -1,4 +1,3 @@
-
 pipeline {
     agent any
 
@@ -7,43 +6,68 @@ pipeline {
         maven 'M2_HOME'
     }
 
-environment {
+    environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Create this in Jenkins
-        IMAGE_NAME = "hamzabox/kaddem-devops"
-        IMAGE_TAG = "${BUILD_NUMBER}"
+
+        BACKEND_IMAGE_NAME = "hamzabox/kaddem-devops"
+        BACKEND_IMAGE_TAG = "${BUILD_NUMBER}"
+
+        FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
+        FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
     }
+
     stages {
-        stage('GIT') {
+        stage('Backend - Git Checkout') {
             steps {
                 git branch: 'AyariHamza-4TWIN2-G1',
                     url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
             }
         }
 
-        stage('Compile Stage') {
+        stage('Frontend - Git Checkout') {
+            steps {
+                git branch: 'main',
+                    url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
+            }
+        }
+
+        stage('Backend - Compile') {
             steps {
                 sh 'mvn clean compile'
             }
         }
-    stage('SonarQube Analysis') {
-               steps {
-                   script {
-                       def scannerHome = tool 'scanner'
-                       withSonarQubeEnv() {
-                           sh """
-                               ${scannerHome}/bin/sonar-scanner \
-                               -Dsonar.projectKey=kaddem-devops \
-                               -Dsonar.projectName='Kaddem DevOps Project' \
-                               -Dsonar.sources=src/main \
-                               -Dsonar.java.binaries=target/classes \
-                               -Dsonar.scm.provider=git
-                           """
-                       }
-                   }
-               }
-           }
 
- stage('Deploy to Nexus') {
+        stage('Frontend - Install Dependencies') {
+            steps {
+                sh 'npm install'
+            }
+        }
+
+        stage('SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
+                    withSonarQubeEnv() {
+                        sh """
+                        ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=kaddem-devops \
+                        -Dsonar.projectName='Kaddem DevOps Project' \
+                        -Dsonar.sources=src/main \
+                        -Dsonar.java.binaries=target/classes \
+                        -Dsonar.scm.provider=git
+                        """
+                    }
+                }
+            }
+        }
+
+        stage('Frontend - Run Tests') {
+            steps {
+                sh 'npm test'
+            }
+        }
+
+        stage('Deploy to Nexus') {
             steps {
                 script {
                     sh """
@@ -53,54 +77,61 @@ environment {
             }
         }
 
+        stage('Backend - Build Docker Image') {
+            steps {
+                sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
+                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
+            }
+        }
 
-         stage('Build Docker Image') {
-                     steps {
-                         sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ."
-                         // Also tag as latest for convenience
-                         sh "docker tag ${IMAGE_NAME}:${IMAGE_TAG} ${IMAGE_NAME}:latest"
-                     }
-                 }
+        stage('Frontend - Build Docker Image') {
+            steps {
+                sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
+                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
+            }
+        }
 
-                 stage('Push to Docker Hub') {
-                     steps {
-                         script {
-                             // Login to Docker Hub
-                             sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+        stage('Push to Docker Hub') {
+            steps {
+                script {
+                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
 
-                             // Push the images
-                             sh "docker push ${IMAGE_NAME}:${IMAGE_TAG}"
-                             sh "docker push ${IMAGE_NAME}:latest"
-                         }
-                     }
-                 }
+                    // Push Backend Images
+                    sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                    sh "docker push ${BACKEND_IMAGE_NAME}:latest"
 
-                 stage('Deploy with Docker Compose') {
-                     steps {
-                         // Update the docker-compose.yml to use the new image
-                         sh """
-                         sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${IMAGE_NAME}:${IMAGE_TAG}|' docker-compose.yml
-                         """
+                    // Push Frontend Images
+                    sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                    sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                }
+            }
+        }
 
-                         // Deploy with docker-compose
-                         sh 'docker compose down'
-                         sh 'docker compose up -d'
-                     }
-                 }
-             }
+        stage('Deploy with Docker Compose') {
+            steps {
+                // Update docker-compose.yml
+                sh """
+                sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
+                sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
+                """
 
-             post {
-                 always {
-                     // Clean up
-                     sh 'docker logout'
-                     // Clean workspace
-                     cleanWs()
-                 }
-                 success {
-                     echo 'Pipeline executed successfully!'
-                 }
-                 failure {
-                     echo 'Pipeline execution failed!'
-                 }
-             }
-         }
+                // Deploy with docker-compose
+                sh 'docker compose down'
+                sh 'docker compose up -d'
+            }
+        }
+    }
+
+    post {
+        always {
+            sh 'docker logout'
+            cleanWs()
+        }
+        success {
+            echo 'Pipeline executed successfully!'
+        }
+        failure {
+            echo 'Pipeline execution failed!'
+        }
+    }
+}
