@@ -26,7 +26,7 @@ pipeline {
 
         stage('Frontend - Git Checkout') {
             steps {
-                git branch: 'main',
+                git branch: 'pre-prod',
                     url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
             }
         }
