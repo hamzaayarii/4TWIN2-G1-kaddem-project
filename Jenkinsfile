@@ -33,7 +33,22 @@ pipeline {
 
         stage('Backend - Compile') {
             steps {
-                sh 'mvn clean compile'
+                script {
+                    // Print current directory and list files
+                    sh 'pwd'
+                    sh 'ls -la'
+
+                    // Check if pom.xml exists
+                    def pomExists = fileExists 'pom.xml'
+
+                    if (pomExists) {
+                        // Run Maven if pom.xml is present
+                        sh 'mvn clean compile'
+                    } else {
+                        // Throw an error if pom.xml is missing
+                        error "pom.xml not found in the current directory"
+                    }
+                }
             }
         }
 
