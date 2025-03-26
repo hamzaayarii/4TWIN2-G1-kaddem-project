@@ -15,76 +15,73 @@ pipeline {
         FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
         FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
 
-        PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin:$PATH"
+        NODE_PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin"
     }
 
     stages {
         stage('Checkout Repositories') {
-                    steps {
-                        script {
-                            // Create separate directories for each repository
-                            sh 'mkdir -p backend frontend'
+            steps {
+                script {
+                    // Create separate directories for each repository
+                    sh 'mkdir -p backend frontend'
 
-                            // Checkout backend
-                            dir('backend') {
-                                git branch: 'AyariHamza-4TWIN2-G1',
-                                    url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
-                            }
+                    // Checkout backend
+                    dir('backend') {
+                        git branch: 'AyariHamza-4TWIN2-G1',
+                            url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
+                    }
 
-                            // Checkout frontend
-                            dir('frontend') {
-                                git branch: 'pre-prod',
-                                    url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
-                            }
-                        }
+                    // Checkout frontend
+                    dir('frontend') {
+                        git branch: 'pre-prod',
+                            url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
                     }
                 }
-
+            }
+        }
 
         stage('Backend - Compile') {
-                   steps {
-                       dir('backend') {
-                           sh 'mvn clean compile'
-                       }
-                   }
-               }
-               stage('Check Node.js Version') {
-                   steps {
-                       sh 'node -v && npm -v'
-                   }
-               }
-
-
-         stage('Frontend - Install Dependencies') {
-                     steps {
-                         dir('frontend') {
-                             sh '''
-                                 export NVM_DIR="$HOME/.nvm"
-                                 . "$NVM_DIR/nvm.sh"
-                                 nvm use 22
-                                 node -v
-                                 npm -v
-                                 npm install
-                             '''
-                         }
-                     }
-                 }
-
-                 stage('Frontend - Run Tests') {
-                     steps {
-                         dir('frontend') {
-                             sh '''
-                                 export NVM_DIR="$HOME/.nvm"
-                                 . "$NVM_DIR/nvm.sh"
-                                 nvm use 22
-                                 node -v
-                                 npm -v
-                                 npm test
-                             '''
-                        }
+            steps {
+                dir('backend') {
+                    sh 'mvn clean compile'
+                }
             }
+        }
+
+        stage('Check Node.js Version') {
+            steps {
+                sh 'node -v && npm -v'
             }
-     }
+        }
+
+        stage('Frontend - Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        export PATH=$NODE_PATH:$PATH
+                        node -v
+                        npm -v
+                        npm install
+                    '''
+                }
+            }
+        }
+
+        stage('Frontend - Run Tests') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        export PATH=$NODE_PATH:$PATH
+                        node -v
+                        npm -v
+                        npm test
+                    '''
+                }
+            }
+        }
+    }
+}
+
 /*
 
 stage('SonarQube Analysis') {
@@ -154,7 +151,7 @@ stage('SonarQube Analysis') {
                 }
             }
         }
-*/
+
         stage('Deploy with Docker Compose') {
             steps {
                 // Update docker-compose.yml
@@ -183,3 +180,4 @@ stage('SonarQube Analysis') {
         }
     }
 }
+*/
