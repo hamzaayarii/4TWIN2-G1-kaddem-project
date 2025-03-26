@@ -39,7 +39,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Backend - Compile & Unit Tests') {
                     steps {
                         dir('backend') {
@@ -138,52 +138,112 @@ pipeline {
                 }
             }
         }
-
-        stage('Backend - Build Docker Image') {
-                    steps {
-                        dir('backend') {
-                            sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
-                            sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
-                        }
-                    }
-                }
-
-        stage('Frontend - Build Docker Image') {
-                    steps {
-                        dir('frontend') {
-                            sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
-                            sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
-                        }
-                    }
-                }
 /*
-        stage('Push to Docker Hub') {
-                    steps {
-                        script {
-                            sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
 
-                            sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                            sh "docker push ${BACKEND_IMAGE_NAME}:latest"
-                            sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                            sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+
+
+            stage('Backend - Build Docker Image') {
+                        steps {
+                            dir('backend') {
+                                sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
+                                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
+                            }
+                        }
+                    }
+
+                    stage('Frontend - Build Docker Image') {
+                        steps {
+                            dir('frontend') {
+                                sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
+                                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
+                            }
+                        }
+                    }
+
+                    stage('Run Backend Docker Container') {
+                        steps {
+                            script {
+                                // Run the backend container locally
+                                sh """
+                                docker run -d --name kaddem-backend -p 8080:8080 ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}
+                                """
+                            }
+                        }
+                    }
+
+                    stage('Run Frontend Docker Container') {
+                        steps {
+                            script {
+                                // Run the frontend container locally
+                                sh """
+                                docker run -d --name kaddem-frontend -p 80:80 ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}
+                                """
+                            }
+                        }
+                    }
+
+                    stage('Push Backend Image to Local Registry') {
+                        steps {
+                            script {
+                                // Push backend image to a local registry (Optional)
+                                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                                sh "docker push localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                            }
+                        }
+                    }
+
+                    stage('Push Frontend Image to Local Registry') {
+                        steps {
+                            script {
+                                // Push frontend image to a local registry (Optional)
+                                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                                sh "docker push localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                            }
                         }
                     }
                 }
+
+                /*
+                        stage('Push to Docker Hub') {
+                                    steps {
+                                        script {
+                                            sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+
+                                            sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                                            sh "docker push ${BACKEND_IMAGE_NAME}:latest"
+                                            sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                                            sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                                        }
+                                    }
+                                }
 */
-        stage('Deploy with Docker Compose') {
-                    steps {
-                        script {
-                            sh """
-                            sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-                            sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
-                            """
+                        stage('Deploy with Docker Compose') {
+                                    steps {
+                                        script {
+                                            sh """
+                                            sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
+                                            sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
+                                            """
 
-                            sh 'docker compose down'
-                            sh 'docker compose up -d'
+                                            sh 'docker compose down'
+                                            sh 'docker compose up -d'
+                                        }
+                                    }
+                                }
+                            }
+
+
+
+
+             stage('Cleanup') {
+                        steps {
+                            script {
+                                sh 'docker-compose down'
+                                sh 'docker system prune -f'
+                            }
                         }
                     }
                 }
-            }
 
     post {
         always {
