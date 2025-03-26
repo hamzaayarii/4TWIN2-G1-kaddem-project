@@ -109,7 +109,7 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Deploy JAR to Nexus') {
             steps {
                 script {
@@ -121,7 +121,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Backend - Build Docker Image') {
             steps {
                 dir('backend') {
