@@ -145,7 +145,7 @@ pipeline {
                 script {
                     // Run the backend container locally
                     sh """
-                    docker run -d --name kaddem-backend -p 8081:8080 ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}
+                    docker run -d --name kaddem-backend -p 8087:8080 ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}
                     """
                 }
             }
