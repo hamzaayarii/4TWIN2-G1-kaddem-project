@@ -15,7 +15,7 @@ pipeline {
         FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
         FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
 
-        NODE_PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin"
+        PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin:$PATH"
     }
 
     stages {
@@ -56,31 +56,35 @@ pipeline {
 
 
          stage('Frontend - Install Dependencies') {
-                    steps {
-                        dir('frontend') {
-                            sh '''
-                                export PATH=$NODE_PATH:$PATH
-                                node -v
-                                npm -v
-                                npm install
-                            '''
-                        }
-                    }
-                }
+                     steps {
+                         dir('frontend') {
+                             sh '''
+                                 export NVM_DIR="$HOME/.nvm"
+                                 . "$NVM_DIR/nvm.sh"
+                                 nvm use 22
+                                 node -v
+                                 npm -v
+                                 npm install
+                             '''
+                         }
+                     }
+                 }
 
-                stage('Frontend - Run Tests') {
-                    steps {
-                        dir('frontend') {
-                            sh '''
-                                export PATH=$NODE_PATH:$PATH
-                                node -v
-                                npm -v
-                                npm test
-                            '''
+                 stage('Frontend - Run Tests') {
+                     steps {
+                         dir('frontend') {
+                             sh '''
+                                 export NVM_DIR="$HOME/.nvm"
+                                 . "$NVM_DIR/nvm.sh"
+                                 nvm use 22
+                                 node -v
+                                 npm -v
+                                 npm test
+                             '''
                         }
             }
             }
-        }
+     }
 /*
 
 stage('SonarQube Analysis') {
