@@ -1,4 +1,4 @@
-package tn.esprit.spring.kaddem.services;
+package tn.esprit.spring.kaddem;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,8 +32,10 @@ return (List<Universite>) universiteRepository.findAll();
 return  (universiteRepository.save(u));
     }
     @Override
- public    Universite updateUniversite (Universite  u){
-     return  (universiteRepository.save(u));
+    public Universite updateUniversite(Long id, Universite universite) {
+        // Logique de mise à jour de l'université avec l'identifiant id
+        // Assurez-vous de renvoyer l'objet Universite mis à jour
+        return universiteRepository.save(universite);
     }
     @Override
   public Universite retrieveUniversite (Integer idUniversite){

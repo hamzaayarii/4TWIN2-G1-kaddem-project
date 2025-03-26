@@ -1,4 +1,4 @@
-package tn.esprit.spring.kaddem.services;
+package tn.esprit.spring.kaddem;
 
 import tn.esprit.spring.kaddem.entities.Departement;
 import tn.esprit.spring.kaddem.entities.Universite;
@@ -11,7 +11,7 @@ public interface IUniversiteService {
 
     Universite addUniversite (Universite  u);
 
-    Universite updateUniversite (Universite  u);
+    Universite updateUniversite(Long id, Universite universite) ;
 
     Universite retrieveUniversite (Integer idUniversite);
 
