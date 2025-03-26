@@ -1,6 +1,9 @@
 package tn.esprit.spring.kaddem.entities;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Set;
@@ -8,6 +11,9 @@ import java.util.Set;
 import javax.persistence.*;
 
 @Entity
+@Getter
+@Setter
+@NoArgsConstructor
 public class Universite implements Serializable{
     @Id
     @GeneratedValue(strategy= GenerationType.IDENTITY)
@@ -16,8 +22,9 @@ public class Universite implements Serializable{
     @OneToMany(cascade = CascadeType.ALL)
     @JsonIgnore
         private Set<Departement> departements;
-    public Universite() {
-        // TODO Auto-generated constructor stub
+    public Universite(Integer idUniversite, String nomUniv) {
+        this.idUniv = idUniversite;
+        this.nomUniv = nomUniv;
     }
 
     public Universite(String nomUniv) {
@@ -25,11 +32,7 @@ public class Universite implements Serializable{
         this.nomUniv = nomUniv;
     }
 
-    public Universite(Integer idUniv, String nomUniv) {
-        super();
-        this.idUniv = idUniv;
-        this.nomUniv = nomUniv;
-    }
+
 
     public Set<Departement> getDepartements() {
         return departements;

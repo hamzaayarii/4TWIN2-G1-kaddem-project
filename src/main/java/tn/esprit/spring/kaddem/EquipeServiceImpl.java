@@ -1,4 +1,4 @@
-package tn.esprit.spring.kaddem.services;
+package tn.esprit.spring.kaddem;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

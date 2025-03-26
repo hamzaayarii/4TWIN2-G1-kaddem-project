@@ -40,66 +40,93 @@ pipeline {
             }
         }
 
-        stage('Backend - Compile') {
-            steps {
-                dir('backend') {
-                    sh 'mvn clean compile'
-                }
-            }
-        }
-
-         stage('Check Node.js Version') {
+        stage('Backend - Compile & Unit Tests') {
                     steps {
-                        sh 'node -v && npm -v'
+                        dir('backend') {
+                            sh 'mvn clean compile'
+                            sh 'mvn test'
+                        }
                     }
                 }
+
+                stage('Backend - SonarQube Analysis') {
+                            steps {
+                                script {
+                                    def scannerHome = tool 'scanner'
+                                    withSonarQubeEnv('SonarQube') {
+                                        dir('backend') {
+                                            sh """
+                                            ${scannerHome}/bin/sonar-scanner \
+                                            -Dsonar.projectKey=kaddem-devops \
+                                            -Dsonar.projectName='Kaddem DevOps Project' \
+                                            -Dsonar.sources=src/main \
+                                            -Dsonar.java.binaries=target/classes \
+                                            -Dsonar.scm.provider=git
+                                            """
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+
+
+
+
+
+
+
 
                 stage('Frontend - Install Dependencies') {
                     steps {
                         dir('frontend') {
                             sh '''
-                                node -v
-                                npm -v
                                 npm install
                             '''
                         }
                     }
                 }
-
                 stage('Frontend - Run Tests') {
                     steps {
                         dir('frontend') {
                             sh '''
-                                node -v
-                                npm -v
                                 npm test
                             '''
                 }
             }
         }
-    }
-}
-
-/*
-
-stage('SonarQube Analysis') {
+        stage('Frontend - SonarQube Analysis') {
             steps {
                 script {
                     def scannerHome = tool 'scanner'
-                    withSonarQubeEnv() {
-                        sh """
-                        ${scannerHome}/bin/sonar-scanner \
-                        -Dsonar.projectKey=kaddem-devops \
-                        -Dsonar.projectName='Kaddem DevOps Project' \
-                        -Dsonar.sources=src/main \
-                        -Dsonar.java.binaries=target/classes \
-                        -Dsonar.scm.provider=git
-                        """
+                    withSonarQubeEnv('SonarQube') {
+                        dir('frontend') {
+                            sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=kaddem-frontend \
+                            -Dsonar.projectName='Kaddem Frontend Project' \
+                            -Dsonar.sources=src \
+                            -Dsonar.language=js \
+                            -Dsonar.sourceEncoding=UTF-8 \
+                            -Dsonar.tests=src \
+                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
+                            """
+                        }
                     }
                 }
             }
         }
-        stage('Deploy to Nexus') {
+
+
+
+
+    }
+}
+
+
+
+
+        stage('Deploy JAR to Nexus') {
             steps {
                 script {
                  dir('backend') {
@@ -113,57 +140,50 @@ stage('SonarQube Analysis') {
         }
 
         stage('Backend - Build Docker Image') {
-            steps {
-             dir('backend') {
-
-                sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
-                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
-            }
-            }
-        }
+                    steps {
+                        dir('backend') {
+                            sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
+                            sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
+                        }
+                    }
+                }
 
         stage('Frontend - Build Docker Image') {
-            steps {
-            dir('frontend') {
-                sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
-                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
-            }
-            }
-        }
-
+                    steps {
+                        dir('frontend') {
+                            sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
+                            sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
+                        }
+                    }
+                }
+/*
         stage('Push to Docker Hub') {
-            steps {
-                script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
+                    steps {
+                        script {
+                            sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
 
-                    // Push Backend Images
-                    dir('backend') {
-                    sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                    sh "docker push ${BACKEND_IMAGE_NAME}:latest"
-                     }
-                    dir('frontend') {
-                    // Push Frontend Images
-                    sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                    sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                            sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                            sh "docker push ${BACKEND_IMAGE_NAME}:latest"
+                            sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                            sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
+                        }
+                    }
+                }
+*/
+        stage('Deploy with Docker Compose') {
+                    steps {
+                        script {
+                            sh """
+                            sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
+                            sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
+                            """
+
+                            sh 'docker compose down'
+                            sh 'docker compose up -d'
+                        }
                     }
                 }
             }
-        }
-
-        stage('Deploy with Docker Compose') {
-            steps {
-                // Update docker-compose.yml
-                sh """
-                sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-                sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
-                """
-
-                // Deploy with docker-compose
-                sh 'docker compose down'
-                sh 'docker compose up -d'
-            }
-        }
-    }
 
     post {
         always {
@@ -178,4 +198,3 @@ stage('SonarQube Analysis') {
         }
     }
 }
-*/

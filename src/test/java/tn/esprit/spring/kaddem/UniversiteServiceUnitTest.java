@@ -1,4 +1,4 @@
-package tn.esprit.spring.kaddem.services;
+package tn.esprit.spring.kaddem;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,14 +18,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(SpringExtension.class)
-class UniversiteServiceImplTestMockito {
-
+class UniversiteServiceUnitTest {
 
     @Mock
-    UniversiteRepository universiteRepository; //create a fake repo to test on fake db
+    UniversiteRepository universiteRepository;
 
     @InjectMocks
-    UniversiteServiceImpl iUniversiteService; //create an instance of the service and inject repo mock inside it
+    UniversiteServiceImpl iUniversiteService;
 
     @BeforeEach
     public void setup() {
@@ -33,7 +32,7 @@ class UniversiteServiceImplTestMockito {
     }
 
     @Test
-    void  testGetUniveristesList() {
+    void testGetUniveristesList() {
         Universite universite1 = new Universite(9, "ben");
         Universite universite2 = new Universite(8, "kevin");
         when(universiteRepository.findAll()).thenReturn(Arrays.asList(universite1, universite2));
