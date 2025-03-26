@@ -15,7 +15,6 @@ pipeline {
 
         FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
         FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
-
     }
 
     stages {
@@ -41,60 +40,54 @@ pipeline {
         }
 /*
         stage('Backend - Compile & Unit Tests') {
-                    steps {
-                        dir('backend') {
-                            sh 'mvn clean compile'
-                            sh 'mvn test'
-                        }
-                    }
-                }
-
-                stage('Backend - SonarQube Analysis') {
-                            steps {
-                                script {
-                                    def scannerHome = tool 'scanner'
-                                    withSonarQubeEnv('SonarQube') {
-                                        dir('backend') {
-                                            sh """
-                                            ${scannerHome}/bin/sonar-scanner \
-                                            -Dsonar.projectKey=kaddem-devops \
-                                            -Dsonar.projectName='Kaddem DevOps Project' \
-                                            -Dsonar.sources=src/main \
-                                            -Dsonar.java.binaries=target/classes \
-                                            -Dsonar.scm.provider=git
-                                            """
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-
-
-
-
-
-
-
-
-                stage('Frontend - Install Dependencies') {
-                    steps {
-                        dir('frontend') {
-                            sh '''
-                                npm install
-                            '''
-                        }
-                    }
-                }
-                stage('Frontend - Run Tests') {
-                    steps {
-                        dir('frontend') {
-                            sh '''
-                                npm test
-                            '''
+            steps {
+                dir('backend') {
+                    sh 'mvn clean compile'
+                    sh 'mvn test'
                 }
             }
         }
+
+        stage('Backend - SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
+                    withSonarQubeEnv('SonarQube') {
+                        dir('backend') {
+                            sh """
+                            ${scannerHome}/bin/sonar-scanner \
+                            -Dsonar.projectKey=kaddem-devops \
+                            -Dsonar.projectName='Kaddem DevOps Project' \
+                            -Dsonar.sources=src/main \
+                            -Dsonar.java.binaries=target/classes \
+                            -Dsonar.scm.provider=git
+                            """
+                        }
+                    }
+                }
+            }
+        }
+
+        stage('Frontend - Install Dependencies') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        npm install
+                    '''
+                }
+            }
+        }
+
+        stage('Frontend - Run Tests') {
+            steps {
+                dir('frontend') {
+                    sh '''
+                        npm test
+                    '''
+                }
+            }
+        }
+
         stage('Frontend - SonarQube Analysis') {
             steps {
                 script {
@@ -117,93 +110,81 @@ pipeline {
             }
         }
 
-
-
-
-    }
-}
-
-
-
-
         stage('Deploy JAR to Nexus') {
             steps {
                 script {
-                 dir('backend') {
-
-                    sh """
-                    mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8083/repository/maven-snapshots/
-                    """
-                }
+                    dir('backend') {
+                        sh """
+                        mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8083/repository/maven-snapshots/
+                        """
+                    }
                 }
             }
         }
-/*
-
-
-
-            stage('Backend - Build Docker Image') {
-                        steps {
-                            dir('backend') {
-                                sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
-                                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
-                            }
-                        }
-                    }
-
-                    stage('Frontend - Build Docker Image') {
-                        steps {
-                            dir('frontend') {
-                                sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
-                                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
-                            }
-                        }
-                    }
-
-                    stage('Run Backend Docker Container') {
-                        steps {
-                            script {
-                                // Run the backend container locally
-                                sh """
-                                docker run -d --name kaddem-backend -p 8080:8080 ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}
-                                """
-                            }
-                        }
-                    }
-
-                    stage('Run Frontend Docker Container') {
-                        steps {
-                            script {
-                                // Run the frontend container locally
-                                sh """
-                                docker run -d --name kaddem-frontend -p 80:80 ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}
-                                """
-                            }
-                        }
-                    }
-
-                    stage('Push Backend Image to Local Registry') {
-                        steps {
-                            script {
-                                // Push backend image to a local registry (Optional)
-                                sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                                sh "docker push localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                            }
-                        }
-                    }
-
-                    stage('Push Frontend Image to Local Registry') {
-                        steps {
-                            script {
-                                // Push frontend image to a local registry (Optional)
-                                sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                                sh "docker push localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                            }
-                        }
-                    }
+*/
+        stage('Backend - Build Docker Image') {
+            steps {
+                dir('backend') {
+                    sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
+                    sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
                 }
+            }
+        }
 
-                /*
+        stage('Frontend - Build Docker Image') {
+            steps {
+                dir('frontend') {
+                    sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
+                    sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
+                }
+            }
+        }
+
+        stage('Run Backend Docker Container') {
+            steps {
+                script {
+                    // Run the backend container locally
+                    sh """
+                    docker run -d --name kaddem-backend -p 8080:8080 ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Run Frontend Docker Container') {
+            steps {
+                script {
+                    // Run the frontend container locally
+                    sh """
+                    docker run -d --name kaddem-frontend -p 80:80 ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}
+                    """
+                }
+            }
+        }
+
+        stage('Push Backend Image to Local Registry') {
+            steps {
+                script {
+                    // Push backend image to a local registry (Optional)
+                    sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                    sh "docker push localhost:5000/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
+                }
+            }
+        }
+
+        stage('Push Frontend Image to Local Registry') {
+            steps {
+                script {
+                    // Push frontend image to a local registry (Optional)
+                    sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                    sh "docker push localhost:5000/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                }
+            }
+        }
+
+
+
+  /*
 
                         stage('Push to Docker Hub') {
                                     steps {
@@ -218,33 +199,30 @@ pipeline {
                                     }
                                 }
 */
-                        stage('Deploy with Docker Compose') {
-                                    steps {
-                                        script {
-                                            sh """
-                                            sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-                                            sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
-                                            """
 
-                                            sh 'docker compose down'
-                                            sh 'docker compose up -d'
-                                        }
-                                    }
-                                }
-                            }
+        stage('Deploy with Docker Compose') {
+            steps {
+                script {
+                    sh """
+                    sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
+                    sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
+                    """
 
-
-
-
-             stage('Cleanup') {
-                        steps {
-                            script {
-                                sh 'docker-compose down'
-                                sh 'docker system prune -f'
-                            }
-                        }
-                    }
+                    sh 'docker-compose down'
+                    sh 'docker-compose up -d'
                 }
+            }
+        }
+
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh 'docker-compose down'
+                    sh 'docker system prune -f'
+                }
+            }
+        }
+    }
 
     post {
         always {
