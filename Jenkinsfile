@@ -4,6 +4,7 @@ pipeline {
     tools {
         jdk 'JAVA_HOME'
         maven 'M2_HOME'
+        nodejs 'NodeJS_22'
     }
 
     environment {
@@ -15,7 +16,6 @@ pipeline {
         FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
         FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
 
-        NODE_PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin"
     }
 
     stages {
@@ -48,34 +48,32 @@ pipeline {
             }
         }
 
-        stage('Check Node.js Version') {
-            steps {
-                sh 'node -v && npm -v'
-            }
-        }
-
-        stage('Frontend - Install Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        export PATH=$NODE_PATH:$PATH
-                        node -v
-                        npm -v
-                        npm install
-                    '''
+         stage('Check Node.js Version') {
+                    steps {
+                        sh 'node -v && npm -v'
+                    }
                 }
-            }
-        }
 
-        stage('Frontend - Run Tests') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        export PATH=$NODE_PATH:$PATH
-                        node -v
-                        npm -v
-                        npm test
-                    '''
+                stage('Frontend - Install Dependencies') {
+                    steps {
+                        dir('frontend') {
+                            sh '''
+                                node -v
+                                npm -v
+                                npm install
+                            '''
+                        }
+                    }
+                }
+
+                stage('Frontend - Run Tests') {
+                    steps {
+                        dir('frontend') {
+                            sh '''
+                                node -v
+                                npm -v
+                                npm test
+                            '''
                 }
             }
         }
