@@ -125,7 +125,12 @@ pipeline {
         stage('Backend - Build Docker Image') {
             steps {
                 dir('backend') {
-                    sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
+                    LATEST_JAR=$(curl -s "http://192.168.33.10:8083/repository/maven-snapshots/tn/esprit/spring/kaddem/0.0.1-SNAPSHOT/maven-metadata.xml" | grep "<value>" | tail -1 | sed 's/<[^>]*>//g')
+
+                    sed -i "s|http://.*.jar|http://192.168.33.10:8083/repository/maven-snapshots/tn/esprit/spring/kaddem/0.0.1-SNAPSHOT/${LATEST_JAR}|" backend/Dockerfile
+
+                    docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} backend/
+
                     sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
                 }
             }
