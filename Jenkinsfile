@@ -14,6 +14,8 @@ pipeline {
 
         FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
         FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
+
+        NODE_PATH = "/home/vagrant/.nvm/versions/node/v22.14.0/bin"
     }
 
     stages {
@@ -53,22 +55,29 @@ pipeline {
                }
 
 
-        stage('Frontend - Install Dependencies') {
-                   steps {
-                       dir('frontend') {
-                           sh 'npm install'
-                       }
-                   }
-               }
+         stage('Frontend - Install Dependencies') {
+                    steps {
+                        dir('frontend') {
+                            sh '''
+                                export PATH=$NODE_PATH:$PATH
+                                node -v
+                                npm -v
+                                npm install
+                            '''
+                        }
+                    }
+                }
 
-
-
-
-        stage('Frontend - Run Tests') {
-            steps {
-             dir('frontend') {
-
-                sh 'npm test'
+                stage('Frontend - Run Tests') {
+                    steps {
+                        dir('frontend') {
+                            sh '''
+                                export PATH=$NODE_PATH:$PATH
+                                node -v
+                                npm -v
+                                npm test
+                            '''
+                        }
             }
             }
         }
