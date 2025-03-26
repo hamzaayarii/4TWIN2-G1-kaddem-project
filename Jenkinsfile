@@ -46,6 +46,12 @@ pipeline {
                        }
                    }
                }
+               stage('Check Node.js Version') {
+                   steps {
+                       sh 'node -v && npm -v'
+                   }
+               }
+
 
         stage('Frontend - Install Dependencies') {
                    steps {
@@ -56,7 +62,19 @@ pipeline {
                }
 
 
-        stage('SonarQube Analysis') {
+
+
+        stage('Frontend - Run Tests') {
+            steps {
+             dir('frontend') {
+
+                sh 'npm test'
+            }
+            }
+        }
+/*
+
+stage('SonarQube Analysis') {
             steps {
                 script {
                     def scannerHome = tool 'scanner'
@@ -73,16 +91,6 @@ pipeline {
                 }
             }
         }
-
-        stage('Frontend - Run Tests') {
-            steps {
-             dir('frontend') {
-
-                sh 'npm test'
-            }
-            }
-        }
-
         stage('Deploy to Nexus') {
             steps {
                 script {
@@ -124,8 +132,8 @@ pipeline {
                     dir('backend') {
                     sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
                     sh "docker push ${BACKEND_IMAGE_NAME}:latest"
-}
-dir('frontend') {
+                     }
+                    dir('frontend') {
                     // Push Frontend Images
                     sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
                     sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
@@ -133,7 +141,7 @@ dir('frontend') {
                 }
             }
         }
-
+*/
         stage('Deploy with Docker Compose') {
             steps {
                 // Update docker-compose.yml
