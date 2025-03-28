@@ -29,26 +29,34 @@ public class EtudiantServiceImpl implements IEtudiantService{
 	EquipeRepository equipeRepository;
     @Autowired
     DepartementRepository departementRepository;
-	public List<Etudiant> retrieveAllEtudiants(){
-	return (List<Etudiant>) etudiantRepository.findAll();
-	}
+	public List<Etudiant> retrieveAllEtudiants() {
+        log.info("Début de récupération de tous les étudiants");
+        List<Etudiant> etudiants = (List<Etudiant>) etudiantRepository.findAll();
+        log.debug("Nombre d'étudiants récupérés : {}", etudiants.size());
+        return etudiants;
+  }
 
-	public Etudiant addEtudiant (Etudiant e){
-		return etudiantRepository.save(e);
-	}
+	 public Etudiant addEtudiant(Etudiant e) {
+        log.info("Ajout d'un nouvel étudiant : {} {}", e.getPrenomE(), e.getNomE());
+        Etudiant savedEtudiant = etudiantRepository.save(e);
+        log.info("Étudiant ajouté avec l'ID : {}", savedEtudiant.getIdEtudiant());
+        return savedEtudiant;
+    }
 
-	public Etudiant updateEtudiant (Etudiant e){
-		return etudiantRepository.save(e);
-	}
+    public Etudiant updateEtudiant(Etudiant e) {
+        log.warn("Mise à jour de l'étudiant ID : {}", e.getIdEtudiant());
+        return etudiantRepository.save(e);
+    }
 
 	public Etudiant retrieveEtudiant(Integer  idEtudiant){
 		return etudiantRepository.findById(idEtudiant).get();
 	}
 
-	public void removeEtudiant(Integer idEtudiant){
-	Etudiant e=retrieveEtudiant(idEtudiant);
-	etudiantRepository.delete(e);
-	}
+	public void removeEtudiant(Integer idEtudiant) {
+        log.error("Suppression de l'étudiant ID : {}", idEtudiant);
+        Etudiant e = retrieveEtudiant(idEtudiant);
+        etudiantRepository.delete(e);
+  }
 
 	public void assignEtudiantToDepartement (Integer etudiantId, Integer departementId){
         Etudiant etudiant = etudiantRepository.findById(etudiantId).orElse(null);
