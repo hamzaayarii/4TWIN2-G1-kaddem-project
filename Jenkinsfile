@@ -2,7 +2,8 @@ pipeline {
     agent any
     tools {
         maven 'Maven-3.9.3'
-        jdk 'jdk17' // Ensure Java 17 is configured in Jenkins
+        // Use the exact name of your JDK installation from Jenkins Global Tool Configuration
+        jdk 'jdk-17' // or 'Java_17' depending on your Jenkins configuration
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
@@ -46,7 +47,7 @@ pipeline {
                     // Ensure Docker is available
                     sh 'docker --version'
                     
-                    // Login with credentials (alternative method)
+                    // Login with credentials
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerr',
                         usernameVariable: 'DOCKER_USER',
@@ -70,8 +71,6 @@ pipeline {
                 body: """
                     <p>Build: <b>${env.JOB_NAME} - #${env.BUILD_NUMBER}</b></p>
                     <p>Status: <b style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</b></p>
-                    <p>Duration: <b>${currentBuild.durationString}</b></p>
-                    <p>Docker Image: <b>${DOCKER_IMAGE}:${env.BUILD_NUMBER}</b></p>
                     <p>Console: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
                 attachLog: true,
