@@ -48,13 +48,22 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-            steps {
-                sh '''
-                    docker-compose down --rmi all --volumes --remove-orphans || true
-                    docker-compose up -d --build
-                '''
-            }
-        }
+    steps {
+        sh '''
+            # Force stop and remove all containers
+            docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
+            
+            # Additional cleanup for any lingering containers
+            docker rm -f $(docker ps -aq --filter name=kaddem) || true
+            
+            # Small delay to ensure cleanup completes
+            sleep 5
+            
+            # Build and start fresh
+            docker-compose up -d --build --force-recreate
+        '''
+    }
+}
     }
     // Notifications & Cleanup
     post {
