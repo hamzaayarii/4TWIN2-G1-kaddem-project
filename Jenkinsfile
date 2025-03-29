@@ -50,12 +50,12 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 sh '''
-                    docker-compose down --remove-orphans || true
+                    docker-compose down --rmi all --volumes --remove-orphans || true
                     docker-compose up -d --build
                 '''
             }
         }
-    }  // <-- THIS CLOSES THE `stages` BLOCK
+    }
     // Notifications & Cleanup
     post {
         always {
