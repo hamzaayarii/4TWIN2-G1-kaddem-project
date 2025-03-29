@@ -2,20 +2,15 @@ pipeline {
     agent any
     tools {
         maven 'Maven-3.9.3'
-        // Use the exact name of your JDK installation from Jenkins Global Tool Configuration
-        jdk 'jdk-17' // or 'Java_17' depending on your Jenkins configuration
-    }
-    environment {
-        DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
-        NEXUS_REPO = "http://192.168.56.10:8081/repository/maven-releases/"
     }
     stages {
+        // Étape 1 : Build avec Maven
         stage('Build') {
             steps {
                 sh 'mvn clean install'
             }
         }
-
+        // Étape 2 : Exécution des tests JUnit
         stage('Test') {
             steps {
                 sh 'mvn test'
@@ -26,56 +21,33 @@ pipeline {
                 }
             }
         }
-
+        // Étape 3 : Analyse SonarQube
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=4TWIN2-G1-kaddem-project'
+    sh 'mvn sonar:sonar -Dsonar.projectKey=4TWIN2-G1-kaddem-project'
                 }
             }
         }
-
+        // Étape 4 : Déploiement vers Nexus
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests -DaltDeploymentRepository=deploymentRepo::default::${NEXUS_REPO}'
-            }
-        }
-
-        stage('Docker Build & Push') {
-            steps {
-                script {
-                    // Ensure Docker is available
-                    sh 'docker --version'
-                    
-                    // Login with credentials
-                    withCredentials([usernamePassword(
-                        credentialsId: 'dockerr',
-                        usernameVariable: 'DOCKER_USER',
-                        passwordVariable: 'DOCKER_PASS'
-                    )]) {
-                        sh """
-                            echo \"${DOCKER_PASS}\" | docker login -u \"${DOCKER_USER}\" --password-stdin
-                            docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} .
-                            docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}
-                        """
-                    }
-                }
+                sh 'mvn deploy -DskipTests'
             }
         }
     }
     post {
-        always {
-            emailext (
-                to: 'lazzezmed@gmail.com',
-                subject: "Build ${currentBuild.currentResult}: Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
-                body: """
-                    <p>Build: <b>${env.JOB_NAME} - #${env.BUILD_NUMBER}</b></p>
-                    <p>Status: <b style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</b></p>
-                    <p>Console: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
-                """,
-                attachLog: true,
-                mimeType: 'text/html'
-            )
-        }
+    always {
+        emailext (
+            to: 'lazzezmed@gmail.com',
+            subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
+            body: """
+                <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${env.BUILD_NUMBER}) : <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
+                <p><b>Durée :</b> ${currentBuild.durationString}</p>
+                <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
+            """,
+            attachLog: (currentBuild.currentResult != 'SUCCESS')
+        )
     }
+}
 }
