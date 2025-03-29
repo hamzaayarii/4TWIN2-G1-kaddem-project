@@ -32,7 +32,7 @@ pipeline {
         // Étape 4 : Déploiement vers Nexus
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests' // Assurez-vous que votre `pom.xml` contient la config Nexus (<distributionManagement>).
+                sh 'mvn deploy -DskipTests'
             }
         }
     }
