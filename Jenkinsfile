@@ -48,13 +48,12 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-    steps {
-        sh '''
-            docker-compose down || true
-            docker-compose up -d --build
-        '''
-    }
-}
+            steps {
+                sh '''
+                    docker-compose down || true
+                    docker-compose up -d --build
+                '''
+            }
         }
     }
     // Notifications & Cleanup
