@@ -48,12 +48,13 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-            steps {
-                script {
-                    dockerCompose.useComposeFiles(['docker-compose.yml'])
-                    dockerCompose.up(background: true, build: true)
-                }
-            }
+    steps {
+        sh '''
+            docker-compose down || true
+            docker-compose up -d --build
+        '''
+    }
+}
         }
     }
     // Notifications & Cleanup
