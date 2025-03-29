@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: kaddem-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_DATABASE: kaddemdb
+      MYSQL_USER: kaddemuser
+      MYSQL_PASSWORD: userpass
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-prootpass"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+    networks:
+      - kaddem-net
+
+  app:
+    build: .  # Utilise le Dockerfile local pour builder l'image
+    container_name: kaddem-app
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://db:3306/kaddemdb?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SPRING_DATASOURCE_USERNAME: kaddemuser
+      SPRING_DATASOURCE_PASSWORD: userpass
+      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+      SERVER_PORT: 8089  # Override le port Spring
+    ports:
+      - "8089:8089"
+    networks:
+      - kaddem-net
+
+volumes:
+  mysql_data:
+
+networks:
+  kaddem-net:
+    driver: bridge
