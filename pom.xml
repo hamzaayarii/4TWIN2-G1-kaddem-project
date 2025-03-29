@@ -75,7 +75,6 @@
     </dependencies>
 
     <build>
-         <finalName>4TWIN2-G1-kaddem</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>
