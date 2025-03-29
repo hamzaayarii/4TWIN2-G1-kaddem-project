@@ -2,19 +2,19 @@ pipeline {
     agent any
     tools {
         maven 'Maven-3.9.3'
+        jdk 'jdk17' // Ensure Java 17 is configured in Jenkins
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
+        NEXUS_REPO = "http://192.168.56.10:8081/repository/maven-releases/"
     }
     stages {
-        // Stage 1: Build with Maven
         stage('Build') {
             steps {
                 sh 'mvn clean install'
             }
         }
 
-        // Stage 2: Run JUnit tests
         stage('Test') {
             steps {
                 sh 'mvn test'
@@ -26,7 +26,6 @@ pipeline {
             }
         }
 
-        // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
@@ -35,20 +34,29 @@ pipeline {
             }
         }
 
-        // Stage 4: Deploy to Nexus
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests'
+                sh 'mvn deploy -DskipTests -DaltDeploymentRepository=deploymentRepo::default::${NEXUS_REPO}'
             }
         }
 
-        // Stage 5: Docker Build & Push
         stage('Docker Build & Push') {
             steps {
                 script {
-                    docker.withRegistry('https://hub.docker.com', 'dockerr') {
-                        def image = docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}")
-                        image.push()
+                    // Ensure Docker is available
+                    sh 'docker --version'
+                    
+                    // Login with credentials (alternative method)
+                    withCredentials([usernamePassword(
+                        credentialsId: 'dockerr',
+                        usernameVariable: 'DOCKER_USER',
+                        passwordVariable: 'DOCKER_PASS'
+                    )]) {
+                        sh """
+                            echo \"${DOCKER_PASS}\" | docker login -u \"${DOCKER_USER}\" --password-stdin
+                            docker build -t ${DOCKER_IMAGE}:${env.BUILD_NUMBER} .
+                            docker push ${DOCKER_IMAGE}:${env.BUILD_NUMBER}
+                        """
                     }
                 }
             }
@@ -58,15 +66,16 @@ pipeline {
         always {
             emailext (
                 to: 'lazzezmed@gmail.com',
-                subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
+                subject: "Build ${currentBuild.currentResult}: Job ${env.JOB_NAME} [${env.BUILD_NUMBER}]",
                 body: """
-                    <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${env.BUILD_NUMBER}) : 
-                    <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
-                    <p><b>Durée :</b> ${currentBuild.durationString}</p>
-                    <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
-                    <p><b>Docker Image:</b> ${DOCKER_IMAGE}:${env.BUILD_NUMBER}</p>
+                    <p>Build: <b>${env.JOB_NAME} - #${env.BUILD_NUMBER}</b></p>
+                    <p>Status: <b style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</b></p>
+                    <p>Duration: <b>${currentBuild.durationString}</b></p>
+                    <p>Docker Image: <b>${DOCKER_IMAGE}:${env.BUILD_NUMBER}</b></p>
+                    <p>Console: <a href="${env.BUILD_URL}">${env.BUILD_URL}</a></p>
                 """,
-                attachLog: (currentBuild.currentResult != 'SUCCESS')
+                attachLog: true,
+                mimeType: 'text/html'
             )
         }
     }
