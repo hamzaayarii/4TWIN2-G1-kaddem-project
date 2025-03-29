@@ -40,13 +40,13 @@ pipeline {
     always {
         emailext (
             to: 'lazzezmed@gmail.com',
-            subject: 'Résultat du Pipeline ${env.JOB_NAME} (#${env.BUILD_NUMBER}) : ${currentBuild.currentResult}',
+            subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
             body: """
-                <p>Statut du pipeline <b>${env.JOB_NAME}</b> (Build #${env.BUILD_NUMBER}) : <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
+                <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${env.BUILD_NUMBER}) : <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
                 <p><b>Durée :</b> ${currentBuild.durationString}</p>
                 <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
             """,
-            attachLog: (currentBuild.currentResult != 'SUCCESS')  // Joint les logs seulement si échec
+            attachLog: (currentBuild.currentResult != 'SUCCESS')
         )
     }
 }
