@@ -94,6 +94,26 @@
             <artifactId>sonar-maven-plugin</artifactId>
             <version>3.9.1.2184</version>
         </plugin>
+                 <plugin>
+    <groupId>org.jacoco</groupId>
+    <artifactId>jacoco-maven-plugin</artifactId>
+    <version>0.8.11</version> <!-- Use the latest version -->
+    <executions>
+        <execution>
+            <id>prepare-agent</id>
+            <goals>
+                <goal>prepare-agent</goal> <!-- Instrument classes for coverage -->
+            </goals>
+        </execution>
+        <execution>
+            <id>generate-report</id>
+            <phase>test</phase> <!-- Run after tests -->
+            <goals>
+                <goal>report</goal> <!-- Generate XML/HTML reports -->
+            </goals>
+        </execution>
+    </executions>
+</plugin>
         </plugins>
     </build>
          <distributionManagement>
