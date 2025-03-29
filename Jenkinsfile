@@ -48,13 +48,14 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-    steps {
-        sh '''
-            docker-compose down --remove-orphans || true
-            docker-compose up -d --build
-        '''
-    }
-}
+            steps {
+                sh '''
+                    docker-compose down --remove-orphans || true
+                    docker-compose up -d --build
+                '''
+            }
+        }
+    }  // <-- THIS CLOSES THE `stages` BLOCK
     // Notifications & Cleanup
     post {
         always {
