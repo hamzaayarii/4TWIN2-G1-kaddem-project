@@ -36,6 +36,7 @@ pipeline {
             }
         }
     }
+    //email notification
     post {
     always {
         emailext (
