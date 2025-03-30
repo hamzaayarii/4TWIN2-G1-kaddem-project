@@ -41,25 +41,29 @@ pipeline {
         */
     }
 
-    post {
-           always {
-               script {
-                   currentBuild.result = currentBuild.currentResult
-               }
+        post {
+            always {
+                script {
+                    currentBuild.result = currentBuild.currentResult
+                }
 
-               emailext subject: "Pipeline Status  ${currentBuild.result}: ${currentBuild.projectName}",
+                emailext(
+                    subject: "Pipeline Status ${currentBuild.result}: ${env.JOB_NAME}",
                     body: """<html>
-                           <body>
-                               <p>Dear Team,</p>
-                               <p>The pipeline for project <strong>${currentBuild.projectName}</strong> has completed with the status: <strong>${currentBuild.result}</strong>.</p>
-                               <p>Thank you,</p>
-                               <p>Your Jenkins Server</p>
-                           </body>
-                       </html>""",
-               to: 'hamzosayari07@gmail.com',
-               mimeType: 'text/html'
+                               <body>
+                                   <p>Dear Team,</p>
+                                   <p>The pipeline for project <strong>${env.JOB_NAME}</strong> has completed with the status: <strong>${currentBuild.result}</strong>.</p>
+                                   <p>Thank you,</p>
+                                   <p>Your Jenkins Server</p>
+                               </body>
+                           </html>""",
+                    to: 'hamzosayari07@gmail.com',
+                    from: 'hamzosayari07@gmail.com',
+                    replyTo: 'hamzosayari07@gmail.com',
+                    mimeType: 'text/html'
+                )
+            }
+        }
 
-             }
-           }
 
        }
