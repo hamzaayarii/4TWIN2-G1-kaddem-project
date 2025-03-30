@@ -4,20 +4,13 @@ pipeline {
     tools {
         jdk 'JAVA_HOME'
         maven 'M2_HOME'
-        nodejs 'NodeJS_22'
     }
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials') // Create this in Jenkins
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
 
         BACKEND_IMAGE_NAME = "hamzabox/kaddem-devops"
         BACKEND_IMAGE_TAG = "${BUILD_NUMBER}"
-
-        FRONTEND_IMAGE_NAME = "hamzabox/kaddem-frontend"
-        FRONTEND_IMAGE_TAG = "${BUILD_NUMBER}"
-
-        // Local registry info
-        LOCAL_REGISTRY = "localhost:5000"
     }
 
     stages {
@@ -25,21 +18,13 @@ pipeline {
             steps {
                 script {
                     // Create separate directories for each repository
-                    sh 'mkdir -p backend frontend'
+                    sh 'mkdir -p backend'
 
                     // Checkout backend
                     dir('backend') {
                         git branch: 'AyariHamza-4TWIN2-G1',
                             url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
                     }
-
-                    // Checkout frontend (this part is now commented out)
-                    /*
-                    dir('frontend') {
-                        git branch: 'pre-prod',
-                            url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
-                    }
-                    */
                 }
             }
         }
@@ -52,7 +37,7 @@ pipeline {
                 }
             }
         }
-/*
+
         stage('Backend - SonarQube Analysis') {
             steps {
                 script {
@@ -73,31 +58,6 @@ pipeline {
             }
         }
 
-        // Commented out the frontend install and test steps
-        
-        stage('Frontend - Install Dependencies') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        npm install
-                    '''
-                }
-            }
-        }
-
-        stage('Frontend - Run Tests') {
-            steps {
-                dir('frontend') {
-                    sh '''
-                        npm test
-                    '''
-                }
-            }
-        }
-
-       
-        */
-
         stage('Deploy JAR to Nexus') {
             steps {
                 script {
@@ -115,61 +75,17 @@ pipeline {
                 dir('backend') {
                     sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
                     sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
-                    // Tag for local registry
-                    sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${LOCAL_REGISTRY}/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
                 }
             }
         }
-
-        // Commented out the frontend Docker image build
-        /*
-        stage('Frontend - Build Docker Image') {
-            steps {
-                dir('frontend') {
-                    sh "docker build -t ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ."
-                    sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${FRONTEND_IMAGE_NAME}:latest"
-                    // Tag for local registry
-                    sh "docker tag ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG} ${LOCAL_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                }
-            }
-        }
-       
-
-        stage('Push Images to Local Registry') {
-            steps {
-                script {
-                    // Push backend image to local registry
-                    sh "docker push ${LOCAL_REGISTRY}/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                    // Frontend push commented out
-                    // sh "docker push ${LOCAL_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                }
-            }
-        }
-
-        /*
-        stage('Push to Docker Hub') {
-            steps {
-                script {
-                    sh "echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin"
-
-                    sh "docker push ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                    sh "docker push ${BACKEND_IMAGE_NAME}:latest"
-                    sh "docker push ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
-                    sh "docker push ${FRONTEND_IMAGE_NAME}:latest"
-                }
-            }
-        }
-        */
 
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    // Update image references in existing docker-compose.yml
+                    // Update the image reference in docker-compose.yml
                     sh """
                     # Update the image references in docker-compose.yml
                     sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-                    # Frontend reference commented out
-                    # sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
 
                     # Stop previous containers if running
                     docker-compose down || true
