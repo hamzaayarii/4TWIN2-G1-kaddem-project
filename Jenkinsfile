@@ -98,17 +98,17 @@ stage('Frontend - SonarQube Analysis') {
             withSonarQubeEnv('scanner') {
                 dir('frontend') {
                     sh """
-                   ${scannerHome}/bin/sonar-scanner \
-                       -Dsonar.projectKey=kaddem-devops-frontend \
-                       -Dsonar.projectName='Kaddem Frontend Project' \
-                       -Dsonar.sources=src \
-                       -Dsonar.language=js \
-                       -Dsonar.sourceEncoding=UTF-8 \
-                       -Dsonar.tests=src \
-                       -Dsonar.exclusions="src/styles.css, src/assets/**, src/environments/**, node_modules/**, src/**/*.spec.ts" \
-                       -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
-
-                    """
+                   ${scannerHome}/bin/sonar-scanner \\
+                                          -Dsonar.projectKey=kaddem-devops-frontend \\
+                                          -Dsonar.projectName='kaddem-devops-frontend' \\
+                                          -Dsonar.sources=src \\
+                                          -Dsonar.language=js \\
+                                          -Dsonar.sourceEncoding=UTF-8 \\
+                                          -Dsonar.exclusions=src/styles.css,src/assets/**,src/environments/**,node_modules/**,src/**/*.spec.ts \\
+                                          -Dsonar.test.inclusions=src/**/*.spec.ts \\
+                                          -Dsonar.coverage.exclusions=src/assets/**,src/environments/**,src/**/*.spec.ts,src/main.ts,src/polyfills.ts \\
+                                          -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
+                                      """
                 }
             }
         }
