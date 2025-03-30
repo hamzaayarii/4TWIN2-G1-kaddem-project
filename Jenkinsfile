@@ -41,7 +41,7 @@ pipeline {
                 }
             }
         }
- /*
+
         stage('Backend - Compile & Unit Tests') {
             steps {
                 dir('backend') {
@@ -50,7 +50,7 @@ pipeline {
                 }
             }
         }
-*/
+
         stage('Backend - SonarQube Analysis') {
             steps {
                 script {
@@ -70,7 +70,7 @@ pipeline {
                 }
             }
         }
-        /*
+
         stage('Frontend - Install Dependencies') {
             steps {
                 dir('frontend') {
@@ -90,7 +90,7 @@ pipeline {
                 }
             }
         }
-        */
+
 stage('Frontend - SonarQube Analysis') {
     steps {
         script {
