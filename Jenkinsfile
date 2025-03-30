@@ -33,11 +33,13 @@ pipeline {
                             url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
                     }
 
-                    // Checkout frontend
+                    // Checkout frontend (this part is now commented out)
+                    /*
                     dir('frontend') {
                         git branch: 'pre-prod',
                             url: 'https://github.com/hamzaayarii/devops-kaddem-frontend.git'
                     }
+                    */
                 }
             }
         }
@@ -71,6 +73,8 @@ pipeline {
             }
         }
 
+        // Commented out the frontend install and test steps
+        /*
         stage('Frontend - Install Dependencies') {
             steps {
                 dir('frontend') {
@@ -91,13 +95,13 @@ pipeline {
             }
         }
 
-stage('Frontend - SonarQube Analysis') {
-    steps {
-        script {
-            def scannerHome = tool 'scanner'
-            withSonarQubeEnv('scanner') {
-                dir('frontend') {
-                    sh """
+        stage('Frontend - SonarQube Analysis') {
+            steps {
+                script {
+                    def scannerHome = tool 'scanner'
+                    withSonarQubeEnv('scanner') {
+                        dir('frontend') {
+                            sh """
                    ${scannerHome}/bin/sonar-scanner \\
                                           -Dsonar.projectKey=kaddem-devops-frontend \\
                                           -Dsonar.projectName='kaddem-devops-frontend' \\
@@ -109,11 +113,13 @@ stage('Frontend - SonarQube Analysis') {
                                           -Dsonar.coverage.exclusions=src/assets/**,src/environments/**,src/**/*.spec.ts,src/main.ts,src/polyfills.ts \\
                                           -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
                                       """
+                        }
+                    }
                 }
             }
         }
-    }
-}
+        */
+
         stage('Deploy JAR to Nexus') {
             steps {
                 script {
@@ -137,6 +143,8 @@ stage('Frontend - SonarQube Analysis') {
             }
         }
 
+        // Commented out the frontend Docker image build
+        /*
         stage('Frontend - Build Docker Image') {
             steps {
                 dir('frontend') {
@@ -147,17 +155,20 @@ stage('Frontend - SonarQube Analysis') {
                 }
             }
         }
+        */
 
         stage('Push Images to Local Registry') {
             steps {
                 script {
                     // Push backend image to local registry
                     sh "docker push ${LOCAL_REGISTRY}/${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}"
-                    sh "docker push ${LOCAL_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
+                    // Frontend push commented out
+                    // sh "docker push ${LOCAL_REGISTRY}/${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}"
                 }
             }
         }
-/*
+
+        /*
         stage('Push to Docker Hub') {
             steps {
                 script {
@@ -170,7 +181,8 @@ stage('Frontend - SonarQube Analysis') {
                 }
             }
         }
-*/
+        */
+
         stage('Deploy with Docker Compose') {
             steps {
                 script {
@@ -178,7 +190,8 @@ stage('Frontend - SonarQube Analysis') {
                     sh """
                     # Update the image references in docker-compose.yml
                     sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-                    sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
+                    # Frontend reference commented out
+                    # sed -i 's|image: hamzabox/kaddem-frontend:.*|image: ${FRONTEND_IMAGE_NAME}:${FRONTEND_IMAGE_TAG}|' docker-compose.yml
 
                     # Stop previous containers if running
                     docker-compose down || true
