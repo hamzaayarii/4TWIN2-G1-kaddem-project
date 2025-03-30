@@ -133,7 +133,7 @@ pipeline {
                 }
             }
         }
-        */
+       
 
         stage('Push Images to Local Registry') {
             steps {
