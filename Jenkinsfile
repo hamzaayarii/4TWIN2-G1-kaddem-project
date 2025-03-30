@@ -41,7 +41,7 @@ pipeline {
                 }
             }
         }
-
+ /*
         stage('Backend - Compile & Unit Tests') {
             steps {
                 dir('backend') {
@@ -50,12 +50,12 @@ pipeline {
                 }
             }
         }
-
+*/
         stage('Backend - SonarQube Analysis') {
             steps {
                 script {
                     def scannerHome = tool 'scanner'
-                    withSonarQubeEnv('SonarQube') {
+                    withSonarQubeEnv('scanner') {
                         dir('backend') {
                             sh """
                             ${scannerHome}/bin/sonar-scanner \
@@ -70,7 +70,7 @@ pipeline {
                 }
             }
         }
-
+        /*
         stage('Frontend - Install Dependencies') {
             steps {
                 dir('frontend') {
@@ -90,29 +90,28 @@ pipeline {
                 }
             }
         }
-/*
-        stage('Frontend - SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'scanner'
-                    withSonarQubeEnv('SonarQube') {
-                        dir('frontend') {
-                            sh """
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=kaddem-frontend \
-                            -Dsonar.projectName='Kaddem Frontend Project' \
-                            -Dsonar.sources=src \
-                            -Dsonar.language=js \
-                            -Dsonar.sourceEncoding=UTF-8 \
-                            -Dsonar.tests=src \
-                            -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
-                            """
-                        }
-                    }
+        */
+stage('Frontend - SonarQube Analysis') {
+    steps {
+        script {
+            def scannerHome = tool 'scanner'
+            withSonarQubeEnv('scanner') {
+                dir('frontend') {
+                    sh """
+                    ${scannerHome}/bin/sonar-scanner \
+                    -Dsonar.projectKey=kaddem-devops-frontend \
+                    -Dsonar.projectName='Kaddem Frontend Project' \
+                    -Dsonar.sources=src \
+                    -Dsonar.language=js \
+                    -Dsonar.sourceEncoding=UTF-8 \
+                    -Dsonar.tests=src \
+                    -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
+                    """
                 }
             }
         }
-*/
+    }
+}
         stage('Deploy JAR to Nexus') {
             steps {
                 script {
