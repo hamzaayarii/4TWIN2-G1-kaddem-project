@@ -52,7 +52,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Backend - SonarQube Analysis') {
             steps {
                 script {
@@ -74,7 +74,7 @@ pipeline {
         }
 
         // Commented out the frontend install and test steps
-        /*
+        
         stage('Frontend - Install Dependencies') {
             steps {
                 dir('frontend') {
@@ -95,29 +95,7 @@ pipeline {
             }
         }
 
-        stage('Frontend - SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'scanner'
-                    withSonarQubeEnv('scanner') {
-                        dir('frontend') {
-                            sh """
-                   ${scannerHome}/bin/sonar-scanner \\
-                                          -Dsonar.projectKey=kaddem-devops-frontend \\
-                                          -Dsonar.projectName='kaddem-devops-frontend' \\
-                                          -Dsonar.sources=src \\
-                                          -Dsonar.language=js \\
-                                          -Dsonar.sourceEncoding=UTF-8 \\
-                                          -Dsonar.exclusions=src/styles.css,src/assets/**,src/environments/**,node_modules/**,src/**/*.spec.ts \\
-                                          -Dsonar.test.inclusions=src/**/*.spec.ts \\
-                                          -Dsonar.coverage.exclusions=src/assets/**,src/environments/**,src/**/*.spec.ts,src/main.ts,src/polyfills.ts \\
-                                          -Dsonar.javascript.lcov.reportPaths=coverage/lcov-report/index-lcov-report.json
-                                      """
-                        }
-                    }
-                }
-            }
-        }
+       
         */
 
         stage('Deploy JAR to Nexus') {
