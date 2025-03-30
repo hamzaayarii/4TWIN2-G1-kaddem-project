@@ -41,29 +41,22 @@ pipeline {
         */
     }
 
-        post {
-            always {
-                script {
-                    currentBuild.result = currentBuild.currentResult
-                }
-
-                emailext(
-                    subject: "Pipeline Status ${currentBuild.result}: ${env.JOB_NAME}",
-                    body: """<html>
-                               <body>
-                                   <p>Dear Team,</p>
-                                   <p>The pipeline for project <strong>${env.JOB_NAME}</strong> has completed with the status: <strong>${currentBuild.result}</strong>.</p>
-                                   <p>Thank you,</p>
-                                   <p>Your Jenkins Server</p>
-                               </body>
-                           </html>""",
-                    to: 'hamzosayari07@gmail.com',
-                    from: 'hamzosayari07@gmail.com',
-                    replyTo: 'hamzosayari07@gmail.com',
-                    mimeType: 'text/html'
-                )
-            }
-        }
-
-
+         post {
+               always {
+                   emailext (
+                       to: 'hamzosayari07@gmail.com',
+                       subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
+                       body: """
+                           <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${env.BUILD_NUMBER}) :
+                           <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
+                           <p><b>Durée :</b> ${currentBuild.durationString}</p>
+                           <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
+                       """,
+                       attachLog: (currentBuild.currentResult != 'SUCCESS')
+                   )
+               }
+               cleanup {
+                   sh 'docker-compose down || true'
+               }
+           }
        }
