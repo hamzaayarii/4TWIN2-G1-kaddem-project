@@ -6,7 +6,7 @@ pipeline {
                 // Pull code from the specific GitHub branch
                 git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git', 
                     branch: 'oussamakaddech-4Twin2-G1', 
-                    credentialsId: 'github-credentials'
+                    credentialsId: 'github-credentials' // omit if public repo
             }
         }
         stage('Build') {
@@ -22,11 +22,9 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube analysis with token from credentials
+                // Run SonarQube analysis with hardcoded token
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.login=$SONAR_TOKEN'
-                    }
+                    sh 'mvn sonar:sonar -Dsonar.host.url=http://192.168.56.10:9000 -Dsonar.login=squ_e82b239048eee2a2eb5899bcb8fd3b3188e6b49d'
                 }
             }
         }
