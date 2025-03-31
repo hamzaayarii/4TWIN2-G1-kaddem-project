@@ -108,12 +108,15 @@
     </build>
 
 
-    <distributionManagement>
-        <repository>
-            <id>deploymentRepo</id> <!-- This ID should match the one in settings.xml -->
-            <name>Nexus Repository</name>
-            <url>http://192.168.33.10:8083/repository/maven-snapshots/</url>
-        </repository>
-    </distributionManagement>
+   <distributionManagement>
+    <repository>
+        <id>nexus</id>
+        <url>http://10.0.2.15:8081/repository/maven-releases/</url>
+    </repository>
+    <snapshotRepository>
+        <id>nexus</id>
+        <url>http://10.0.2.15:8081/repository/maven-snapshots/</url>
+    </snapshotRepository>
+</distributionManagement>
 
 </project>
