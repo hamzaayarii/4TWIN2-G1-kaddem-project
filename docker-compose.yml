@@ -17,7 +17,7 @@ services:
   backend:
     depends_on:
       - mysqldb
-    image: hamzabox/kaddem-devops:${BACKEND_IMAGE_TAG:-latest}
+    image: hamzabox/ayarihamza-g1-kaddem-api:latest
     # build: ./backend  # Uncomment if you want to build the backend locally
     restart: on-failure
     ports:
@@ -34,15 +34,17 @@ services:
     tty: true
     networks:
       - kaddem_network
+    container_name: kaddem-backend
 
-  #frontend:
-    # image: hamzabox/kaddem-frontend:${FRONTEND_IMAGE_TAG:-latest}
-      #ports:
-      #- 80:80
-      #depends_on:
-      #- backend
-      #networks:
-      #- kaddem_network
+  frontend:
+    image: hamzabox/ayarihamza-g1-kaddem-frontend:latest
+    container_name: kaddem-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - kaddem_network
 
 volumes:
   db:
