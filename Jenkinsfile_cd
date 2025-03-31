@@ -2,8 +2,8 @@ pipeline {
     agent any
 
     environment {
-        BACKEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-api:latest"
-        FRONTEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-frontend:latest"
+        BACKEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-api:3"
+        FRONTEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-frontend:6"
     }
 
     stages {
