@@ -1,0 +1,48 @@
+pipeline {
+    agent any
+
+    environment {
+        BACKEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-api:latest"
+        FRONTEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-frontend:latest"
+    }
+
+    stages {
+        stage('Pull Docker Images') {
+            steps {
+                echo "Pulling backend and frontend images from Docker Hub..."
+                sh "docker pull ${BACKEND_IMAGE}"
+                sh "docker pull ${FRONTEND_IMAGE}"
+            }
+        }
+
+        stage('Start Services with Docker Compose') {
+            steps {
+                echo "Starting backend, frontend, and database using Docker Compose..."
+                sh 'docker-compose up -d'
+            }
+        }
+
+        stage('Check Running Services') {
+            steps {
+                echo "Checking if all services are running..."
+                sh 'docker ps'
+            }
+        }
+
+
+
+        stage('Stop Services') {
+            steps {
+                echo "Stopping and cleaning up containers..."
+                sh 'docker-compose down'
+            }
+        }
+    }
+
+    post {
+        always {
+            echo "Cleanup: Removing unused Docker images"
+            sh "docker system prune -f"
+        }
+    }
+}
