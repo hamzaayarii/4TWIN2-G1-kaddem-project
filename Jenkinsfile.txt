@@ -27,8 +27,7 @@ pipeline {
         }
         stage('Deploy') {
             steps {
-                sh 'mvn deploy -DskipTests -s /var/jenkins_home/.m2/settings.xml'
-            }
+sh 'mvn deploy -DskipTests -s /var/jenkins_home/.m2/settings.xml'            }
         }
     }
 }
