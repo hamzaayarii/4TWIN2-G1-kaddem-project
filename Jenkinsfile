@@ -8,7 +8,7 @@ pipeline {
 
      environment {
             DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-            BACKEND_IMAGE = "HamzaSayari-4TWIN2-G1-kaddem-api"
+            BACKEND_IMAGE = "hamzasayari-4twin2-g1-kaddem-api"
             BACKEND_TAG = "${BUILD_NUMBER}"
             NEXUS_REPO = "http://192.168.33.10:8083/repository/maven-snapshots/"
         }
