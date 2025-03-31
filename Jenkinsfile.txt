@@ -25,9 +25,13 @@ pipeline {
                 }
             }
         }
-        stage('Deploy') {
-            steps {
-sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'            }
-        }
+   stage('Deploy') {
+    steps {
+        // Déployer dans maven-snapshots
+        sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'
+        // Forcer le déploiement dans maven-releases
+        sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml -DaltDeploymentRepository=deploymentRepo::default::http://localhost:8081/repository/maven-releases/'
+    }
+}
     }
 }
