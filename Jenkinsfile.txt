@@ -3,15 +3,13 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                // Pull code from the specific GitHub branch
                 git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git', 
                     branch: 'oussamakaddech-4Twin2-G1', 
-                    credentialsId: 'github-credentials' // omit if public repo
+                    credentialsId: 'github-credentials' // omit if public
             }
         }
         stage('Build') {
             steps {
-                // Clean and compile the project
                 sh 'mvn clean compile'
             }
         }
@@ -22,15 +20,16 @@ pipeline {
         }
         stage('SonarQube Analysis') {
             steps {
-                // Run SonarQube analysis with hardcoded token
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.host.url=http://192.168.56.10:9000 -Dsonar.login=squ_e82b239048eee2a2eb5899bcb8fd3b3188e6b49d'
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh 'mvn sonar:sonar -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=squ_9f871fc39970268939d2ff1894c50d500c0105ec'
+                    }
                 }
             }
         }
         stage('Deploy') {
             steps {
-                sh 'mvn deploy -DskipTests'
+                sh 'mvn deploy -DskipTests -s /var/jenkins_home/.m2/settings.xml'
             }
         }
     }
