@@ -4,7 +4,8 @@ pipeline {
         stage('Checkout') {
             steps {
                 git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git', 
-                    branch: 'oussamakaddech-4Twin2-G1'            }
+                    branch: 'oussamakaddech-4Twin2-G1'
+            }
         }
         stage('Build') {
             steps {
@@ -25,13 +26,10 @@ pipeline {
                 }
             }
         }
-   stage('Deploy') {
-    steps {
-        // Déployer dans maven-snapshots
-        sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'
-        // Forcer le déploiement dans maven-releases
-        sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml -DaltDeploymentRepository=deploymentRepo::default::http://localhost:8081/repository/maven-releases/'
-    }
-}
+        stage('Deploy') {
+            steps {
+                sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'
+            }
+        }
     }
 }
