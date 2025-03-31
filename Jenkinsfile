@@ -6,37 +6,40 @@ pipeline {
         maven 'M2_HOME'
     }
 
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
-
-        BACKEND_IMAGE_NAME = "hamzabox/kaddem-devops"
-        BACKEND_IMAGE_TAG = "${BUILD_NUMBER}"
-    }
+     environment {
+            DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+            BACKEND_IMAGE = "HamzaSayari-4TWIN2-G1-kaddem-api"
+            BACKEND_TAG = "${BUILD_NUMBER}"
+            NEXUS_REPO = "http://192.168.33.10:8083/repository/maven-snapshots/"
+        }
 
     stages {
-        stage('Checkout Repositories') {
-            steps {
-                script {
-                    // Create separate directories for each repository
-                    sh 'mkdir -p backend'
-
-                    // Checkout backend
+            stage('Checkout Backend Code') {
+                steps {
                     dir('backend') {
                         git branch: 'AyariHamza-4TWIN2-G1',
                             url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
                     }
                 }
             }
-        }
 
-        stage('Backend - Compile & Unit Tests') {
-            steps {
-                dir('backend') {
-                    sh 'mvn clean compile'
-                    sh 'mvn test'
+        stage('Maven Clean Compile') {
+                    steps {
+                    dir('backend') {
+                        sh 'mvn clean'
+                        echo 'Running Maven Compile'
+                        sh 'mvn compile'
+                    }
+                    }
                 }
-            }
-        }
+
+                stage('Tests - JUnit/Mockito') {
+                    steps {
+                    dir('backend') {
+                        sh 'mvn test'
+                    }
+                    }
+                }
 
         stage('Backend - SonarQube Analysis') {
             steps {
@@ -59,52 +62,26 @@ pipeline {
         }
 
         stage('Deploy JAR to Nexus') {
-            steps {
-                script {
-                    dir('backend') {
-                        sh """
-                        mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://192.168.33.10:8083/repository/maven-snapshots/
-                        """
+                    steps {
+                        dir('backend') {
+                            sh "mvn deploy -DaltDeploymentRepository=deploymentRepo::default::${NEXUS_REPO}"
+                        }
                     }
                 }
-            }
-        }
 
-        stage('Backend - Build Docker Image') {
-            steps {
-                dir('backend') {
-                    sh "docker build -t ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ."
-                    sh "docker tag ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG} ${BACKEND_IMAGE_NAME}:latest"
-                }
-            }
-        }
-
-        stage('Deploy with Docker Compose') {
+       stage('Build Docker Image') {
+                   steps {
+                       dir('backend') {
+                           sh "docker build -t ${BACKEND_IMAGE}:${BACKEND_TAG} ."
+                       }
+                   }
+               }
+ stage('Push Docker Image to DockerHub') {
             steps {
                 script {
-                    // Update the image reference in docker-compose.yml
-                    sh """
-                    # Update the image references in docker-compose.yml
-                    sed -i 's|image: hamzabox/kaddem-devops:.*|image: ${BACKEND_IMAGE_NAME}:${BACKEND_IMAGE_TAG}|' docker-compose.yml
-
-                    # Stop previous containers if running
-                    docker-compose down || true
-
-                    # Start containers with new images
-                    docker-compose up -d
-                    """
-                }
-            }
-        }
-
-        stage('Verify Containers') {
-            steps {
-                script {
-                    // Check if containers are running
-                    sh '''
-                    echo "Verifying containers..."
-                    docker ps | grep kaddem
-                    '''
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        sh "docker push ${BACKEND_IMAGE}:${BACKEND_TAG}"
+                    }
                 }
             }
         }
@@ -115,22 +92,6 @@ pipeline {
             script {
                 currentBuild.result = currentBuild.currentResult
             }
-
-            emailext(
-                subject: "Pipeline Status ${currentBuild.result}: ${env.JOB_NAME}",
-                body: """<html>
-                           <body>
-                               <p>Dear Team,</p>
-                               <p>The pipeline for project <strong>${env.JOB_NAME}</strong> has completed with the status: <strong>${currentBuild.result}</strong>.</p>
-                               <p>Thank you,</p>
-                               <p>Your Jenkins Server</p>
-                           </body>
-                       </html>""",
-                to: 'hamzosayari07@gmail.com',
-                from: 'hamzosayari07@gmail.com',
-                replyTo: 'hamzosayari07@gmail.com',
-                mimeType: 'text/html'
-            )
         }
     }
 }
