@@ -108,15 +108,10 @@
     </build>
 
 
-   <distributionManagement>
+<distributionManagement>
     <repository>
         <id>nexus</id>
-        <url>http://10.0.2.15:8081/repository/maven-releases/</url>
+        <url>http://192.168.56.10:8081/repository/maven-releases/</url>
     </repository>
-    <snapshotRepository>
-        <id>nexus</id>
-        <url>http://10.0.2.15:8081/repository/maven-snapshots/</url>
-    </snapshotRepository>
 </distributionManagement>
-
 </project>
