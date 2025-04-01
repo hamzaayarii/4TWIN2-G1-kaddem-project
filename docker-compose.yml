@@ -2,7 +2,7 @@ version: "3.8"
 
 services:
   mysqldb:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: unless-stopped
     environment:
       - MYSQL_ROOT_PASSWORD=
@@ -17,7 +17,7 @@ services:
   backend:
     depends_on:
       - mysqldb
-    image: hamzabox/kaddem-devops:${BACKEND_IMAGE_TAG:-latest}
+    image: AliMaalej/kaddem-devops:${BUILD_NUMBER:-latest}
     # build: ./backend  # Uncomment if you want to build the backend locally
     restart: on-failure
     ports:
@@ -32,15 +32,6 @@ services:
             }'
     stdin_open: true
     tty: true
-    networks:
-      - kaddem_network
-
-  frontend:
-    image: hamzabox/kaddem-frontend:${FRONTEND_IMAGE_TAG:-latest}
-    ports:
-      - 80:80
-    depends_on:
-      - backend
     networks:
       - kaddem_network
 
