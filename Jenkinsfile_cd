@@ -39,10 +39,5 @@ pipeline {
         }
     }
 
-    post {
-        always {
-            echo "Cleanup: Removing unused Docker images"
-            sh "docker system prune -f"
-        }
-    }
+
 }
