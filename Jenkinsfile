@@ -30,7 +30,7 @@ pipeline {
 
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://http://10.0.2.15:8081/repository/maven-snapshots/'
+                sh 'mvn deploy -DaltDeploymentRepository=deploymentRepo::default::http://10.0.2.15:8081/repository/maven-snapshots/'
             }
         }
 
