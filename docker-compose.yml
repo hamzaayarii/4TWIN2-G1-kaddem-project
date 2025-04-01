@@ -17,8 +17,7 @@ services:
   backend:
     depends_on:
       - mysqldb
-    image: AliMaalej/kaddem-devops:${BUILD_NUMBER:-latest}
-    # build: ./backend  # Uncomment if you want to build the backend locally
+    image: alimaalej/kaddem-4twin2-g1-kaddem:latest
     restart: on-failure
     ports:
       - 8082:8082
