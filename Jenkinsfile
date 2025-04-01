@@ -6,7 +6,7 @@ pipeline {
     }
 
     environment {
-        IMAGE_NAME = "alimaalej/kaddem--4twin2-g1-kaddem"
+        IMAGE_NAME = "alimaalej/kaddem-4twin2-g1-kaddem"
     }
 
     stages {
