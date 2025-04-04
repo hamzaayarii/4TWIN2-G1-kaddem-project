@@ -63,23 +63,4 @@ pipeline {
             }
         }
     }
-
-    post {
-            always {
-                emailext (
-                    to: 'mohamedali.maalej@esprit.tn',
-                    subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
-                    body: """
-                        <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${BUILD_NUMBER}) :
-                        <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
-                        <p><b>Durée :</b> ${currentBuild.durationString}</p>
-                        <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
-                    """,
-                    attachLog: (currentBuild.currentResult != 'SUCCESS')
-                )
-            }
-            cleanup {
-                sh 'docker-compose down || true'
-            }
-    }
 }
