@@ -77,6 +77,24 @@ pipeline {
                     
                     # Build and start fresh
                     docker compose up -d --build --force-recreate
+                    
+                    # Wait for containers to be healthy
+                    echo "Waiting for containers to be ready..."
+                    sleep 30
+                    
+                    # Verify containers are running
+                    if ! docker ps | grep -q "kaddem-app"; then
+                        echo "Application container failed to start"
+                        exit 1
+                    fi
+                    
+                    if ! docker ps | grep -q "kaddem-mysql"; then
+                        echo "Database container failed to start"
+                        exit 1
+                    fi
+                    
+                    echo "Deployment successful - Application is running!"
+                    echo "You can access the application at: http://localhost:8089"
                 '''
             }
         }
@@ -92,6 +110,8 @@ pipeline {
                     |Job: ${env.JOB_NAME}
                     |Build: ${env.BUILD_NUMBER}
                     |Duration: ${currentBuild.durationString}
+                    |
+                    |Application is running at: http://localhost:8089
                     |
                     |Check details at: ${env.BUILD_URL}
                     """.stripMargin()
@@ -110,12 +130,14 @@ pipeline {
                     |Check details at: ${env.BUILD_URL}
                     """.stripMargin()
             )
+            // Only clean up containers on failure
+            sh '''
+                docker compose down --rmi all --volumes --remove-orphans || true
+                docker ps -aq --filter name=kaddem | xargs -r docker rm -f || true
+            '''
         }
         always {
             sh 'docker logout'
-        }
-        cleanup {
-            sh 'docker compose down || true'
         }
     }
 }
