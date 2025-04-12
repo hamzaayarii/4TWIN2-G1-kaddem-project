@@ -6,7 +6,6 @@ pipeline {
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = false  // Set this to true once Docker is installed
-        EMAIL_NOTIFICATION = false  // Set this to true once email is configured
     }
     stages {
         // Stage 1: Build
@@ -92,43 +91,32 @@ pipeline {
     // Notifications & Cleanup
     post {
         success {
-            script {
-                if (env.EMAIL_NOTIFICATION.toBoolean()) {
-                    emailext (
-                        to: 'lazzezmed@gmail.com',
-                        subject: "✅ Pipeline SUCCESS: ${currentBuild.fullDisplayName}",
-                        body: """
-                            <h2>Pipeline Execution Successful!</h2>
-                            <p>Project: ${env.JOB_NAME}</p>
-                            <p>Build Number: ${env.BUILD_NUMBER}</p>
-                            <p>Duration: ${currentBuild.durationString}</p>
-                            <p>Build URL: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>
-                        """,
-                        mimeType: 'text/html'
-                    )
-                }
-            }
+            mail(
+                to: 'lazzezmed@gmail.com',
+                subject: "✅ SUCCESS: Pipeline ${currentBuild.fullDisplayName}",
+                body: """Pipeline execution successful!
+                    |
+                    |Job: ${env.JOB_NAME}
+                    |Build: ${env.BUILD_NUMBER}
+                    |Duration: ${currentBuild.durationString}
+                    |
+                    |Check details at: ${env.BUILD_URL}
+                    """.stripMargin()
+            )
         }
         failure {
-            script {
-                if (env.EMAIL_NOTIFICATION.toBoolean()) {
-                    emailext (
-                        to: 'lazzezmed@gmail.com',
-                        subject: "❌ Pipeline FAILED: ${currentBuild.fullDisplayName}",
-                        body: """
-                            <h2>Pipeline Execution Failed</h2>
-                            <p>Project: ${env.JOB_NAME}</p>
-                            <p>Build Number: ${env.BUILD_NUMBER}</p>
-                            <p>Duration: ${currentBuild.durationString}</p>
-                            <p>Build URL: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>
-                            <h3>Console Output:</h3>
-                            <pre>${currentBuild.rawBuild.getLog(100).join('\n')}</pre>
-                        """,
-                        mimeType: 'text/html',
-                        attachLog: true
-                    )
-                }
-            }
+            mail(
+                to: 'lazzezmed@gmail.com',
+                subject: "❌ FAILED: Pipeline ${currentBuild.fullDisplayName}",
+                body: """Pipeline execution failed!
+                    |
+                    |Job: ${env.JOB_NAME}
+                    |Build: ${env.BUILD_NUMBER}
+                    |Duration: ${currentBuild.durationString}
+                    |
+                    |Check details at: ${env.BUILD_URL}
+                    """.stripMargin()
+            )
         }
         cleanup {
             script {
