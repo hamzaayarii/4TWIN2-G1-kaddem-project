@@ -5,49 +5,33 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
-        DOCKER_NETWORK = "devops_network"
     }
     stages {
-        // Stage 0: Setup Network
-        stage('Setup Network') {
-            steps {
-                sh '''
-                    docker network create ${DOCKER_NETWORK} || true
-                '''
-            }
-        }
         // Stage 1: Build
         stage('Build') {
-            agent {
-                docker {
-                    image 'maven:3.9.3-eclipse-temurin-17'
-                    args "-v /root/.m2:/root/.m2 --network ${DOCKER_NETWORK}"
-                }
+            steps {
+                sh 'mvn clean install'
             }
-            steps { sh 'mvn clean install' }
         }
         // Stage 2: Test
         stage('Test') {
-            steps { sh 'mvn test' }
-            post { always { junit 'target/surefire-reports/*.xml' } }
+            steps {
+                sh 'mvn test'
+            }
         }
-        // Stage 3: SonarQube
+        // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar -Dsonar.projectKey=4TWIN2-G1-kaddem-project'
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
         // Stage 4: Nexus Deploy
         stage('Deploy to Nexus') {
-            agent {
-                docker {
-                    image 'maven:3.9.3-eclipse-temurin-17'
-                    args "-v /root/.m2:/root/.m2 --network ${DOCKER_NETWORK}"
-                }
+            steps {
+                sh 'mvn deploy -DskipTests'
             }
-            steps { sh 'mvn deploy -DskipTests' }
         }
         // Stage 5: Docker Build
         stage('Build Docker Image') {
