@@ -7,6 +7,7 @@ pipeline {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem-project"
     }
     stages {
         // Stage 1: Build
@@ -20,19 +21,34 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
         }
         // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
+            environment {
+                SONAR_TOKEN = credentials('sonar-token')
+            }
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar'
+                    sh """
+                        mvn sonar:sonar \
+                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
+                        -Dsonar.host.url=http://sonarqube:9000 \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    """
                 }
             }
         }
         // Stage 4: Nexus Deploy
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS deploy -DskipTests'
+                }
             }
         }
         // Stage 5: Docker Build
