@@ -8,6 +8,8 @@ pipeline {
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem"
+        // Define network names from docker-compose
+        DOCKER_NETWORK = "devops-tools_default"
     }
     stages {
         // Stage 1: Build
@@ -35,7 +37,7 @@ pipeline {
                         mvn sonar:sonar \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectName=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://sonarqube:9000
+                        -Dsonar.host.url=http://devops-tools-sonarqube-1:9000
                     """
                 }
             }
