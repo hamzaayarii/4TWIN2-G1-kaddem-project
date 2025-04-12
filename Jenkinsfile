@@ -17,54 +17,45 @@ pipeline {
     stages {
             stage('Checkout Backend Code') {
                 steps {
-                    dir('backend') {
+
                         git branch: 'AyariHamza-4TWIN2-G1',
                             url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git'
-                    }
+
                 }
             }
 
-        stage('Maven Clean Compile') {
+         stage('Maven Clean Compile') {
                     steps {
-                    dir('backend') {
                         sh 'mvn clean'
                         echo 'Running Maven Compile'
                         sh 'mvn compile'
                     }
-                    }
                 }
-
                 stage('Tests - JUnit/Mockito') {
                     steps {
-                    dir('backend') {
                         sh 'mvn test'
                     }
+                }
+                stage('Build package') {
+                    steps {
+                        sh 'mvn package'
+                    }
+                }
+                stage('Maven Install') {
+                    steps {
+                        sh 'mvn install'
                     }
                 }
 
-        stage('Backend - SonarQube Analysis') {
-            steps {
-                script {
-                    def scannerHome = tool 'scanner'
-                    withSonarQubeEnv('scanner') {
-                        dir('backend') {
-                            sh """
-                            mvn clean install -DskipTests
-                            mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
-                            ${scannerHome}/bin/sonar-scanner \
-                            -Dsonar.projectKey=kaddem-devops \
-                            -Dsonar.projectName='Kaddem DevOps Project' \
-                            -Dsonar.sources=src/main \
-                            -Dsonar.java.binaries=target/classes \
-                            -Dsonar.java.libraries=target/dependency \
-                            -Dsonar.scm.provider=git
-                            """
-                        }
+          stage("SonarQube Analysis") {
+                    steps {
+                        withSonarQubeEnv('scanner') {
+
+                            sh 'mvn sonar:sonar'
+
+                       }
                     }
                 }
-            }
-        }
-
 /*
         stage('Deploy JAR to Nexus') {
                     steps {

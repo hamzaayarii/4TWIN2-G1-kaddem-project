@@ -1,4 +1,3 @@
-/*
 package tn.esprit.spring.kaddem;
 
 import org.junit.jupiter.api.Test;
@@ -14,4 +13,4 @@ class KaddemApplicationTests {
         assertTrue(true); // Changez ceci en l'assertion appropriée pour votre test
     }
 
-}*/
+}

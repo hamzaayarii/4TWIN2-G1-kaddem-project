@@ -4,13 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tn.esprit.spring.kaddem.entities.Universite;
 import tn.esprit.spring.kaddem.repositories.UniversiteRepository;
-
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 
 @Service
 public class UniversiteServiceImpl implements IUniversiteService {
@@ -22,16 +17,18 @@ public class UniversiteServiceImpl implements IUniversiteService {
         this.universiteRepository = universiteRepository;
     }
 
-    @Override
-    public List<Universite> retrieveAllUniversites(){
-        return (List<Universite>) universiteRepository.findAll();
-    }
+   @Override
+public List<Universite> retrieveAllUniversites() {
+    return (List<Universite>) universiteRepository.findAll();
+}
     public Universite addUniversite(Universite u) {
         return universiteRepository.save(u);
     }
 
     @Override
     public Universite updateUniversite(Long id, Universite universite) {
+        // Logique de mise à jour de l'université avec l'identifiant id
+        // Assurez-vous de renvoyer l'objet Universite mis à jour
         return universiteRepository.save(universite);
     }
 

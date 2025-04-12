@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.kaddem.UniversiteServiceImpl;
 import tn.esprit.spring.kaddem.dto.UniversiteDTO;
 import tn.esprit.spring.kaddem.entities.Universite;
-import tn.esprit.spring.kaddem.repositories.UniversiteRepository;
+
 
 import java.util.List;
 
@@ -17,13 +17,7 @@ public class UniversiteRestController {
 
 	@Autowired
 	private UniversiteServiceImpl universiteService;
-	private final UniversiteRepository universiteRepository;
 
-	@Autowired
-	public UniversiteRestController(UniversiteServiceImpl universiteService, UniversiteRepository universiteRepository) {
-		this.universiteService = universiteService;
-		this.universiteRepository = universiteRepository;
-	}
 
 	// http://localhost:8089/Kaddem/universite/retrieve-all-universites
 	@GetMapping("/retrieve-all-universites")
