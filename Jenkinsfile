@@ -5,9 +5,7 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
-        DOCKER_AVAILABLE = true
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        DOCKER_NETWORK = "devops-tools-network"
+        DOCKER_AVAILABLE = false  // Set this to true once Docker is installed
     }
     stages {
         // Stage 1: Build
@@ -31,10 +29,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                        sh '''
-                            docker network connect ${DOCKER_NETWORK} sonarqube || true
-                            mvn -s $MAVEN_SETTINGS sonar:sonar -Dsonar.host.url=http://sonarqube:9000
-                        '''
+                        sh 'mvn -s $MAVEN_SETTINGS sonar:sonar'
                     }
                 }
             }
@@ -49,34 +44,47 @@ pipeline {
         }
         // Stage 5: Docker Build
         stage('Build Docker Image') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}", ".")
                 }
             }
         }
         // Stage 6: Push to Docker Hub
         stage('Push to Docker Hub') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
                 script {
-                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
-                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
+                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
                     }
                 }
             }
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
-                script {
-                    sh '''
-                        docker-compose down --rmi all --volumes --remove-orphans || true
-                        docker rm -f kaddem || true
-                        sleep 5
-                        docker-compose up -d --build --force-recreate
-                    '''
-                }
+                sh '''
+                    # Force stop and remove all containers
+                    docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
+                    
+                    # Additional cleanup for any lingering containers
+                    docker rm -f $(docker ps -aq --filter name=kaddem) || true
+                    
+                    # Small delay to ensure cleanup completes
+                    sleep 5
+                    
+                    # Build and start fresh
+                    docker-compose up -d --build --force-recreate
+                '''
             }
         }
     }
