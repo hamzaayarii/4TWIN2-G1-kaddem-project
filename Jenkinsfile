@@ -6,6 +6,7 @@ pipeline {
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = false  // Set this to true once Docker is installed
+        EMAIL_NOTIFICATION = false  // Set this to true once email is configured
     }
     stages {
         // Stage 1: Build
@@ -90,18 +91,44 @@ pipeline {
     }
     // Notifications & Cleanup
     post {
-        always {
-            emailext (
-                to: 'lazzezmed@gmail.com',
-                subject: 'Résultat du Pipeline kaddem-DevOps-Pipeline',
-                body: """
-                    <p>Statut du pipeline <b>kaddem-DevOps-Pipeline</b> (Build #${env.BUILD_NUMBER}) : 
-                    <span style="color:${currentBuild.currentResult == 'SUCCESS' ? 'green' : 'red'}">${currentBuild.currentResult}</span></p>
-                    <p><b>Durée :</b> ${currentBuild.durationString}</p>
-                    <p><b>Logs :</b> <a href="${env.BUILD_URL}console">Console Jenkins</a></p>
-                """,
-                attachLog: (currentBuild.currentResult != 'SUCCESS')
-            )
+        success {
+            script {
+                if (env.EMAIL_NOTIFICATION.toBoolean()) {
+                    emailext (
+                        to: 'lazzezmed@gmail.com',
+                        subject: "✅ Pipeline SUCCESS: ${currentBuild.fullDisplayName}",
+                        body: """
+                            <h2>Pipeline Execution Successful!</h2>
+                            <p>Project: ${env.JOB_NAME}</p>
+                            <p>Build Number: ${env.BUILD_NUMBER}</p>
+                            <p>Duration: ${currentBuild.durationString}</p>
+                            <p>Build URL: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>
+                        """,
+                        mimeType: 'text/html'
+                    )
+                }
+            }
+        }
+        failure {
+            script {
+                if (env.EMAIL_NOTIFICATION.toBoolean()) {
+                    emailext (
+                        to: 'lazzezmed@gmail.com',
+                        subject: "❌ Pipeline FAILED: ${currentBuild.fullDisplayName}",
+                        body: """
+                            <h2>Pipeline Execution Failed</h2>
+                            <p>Project: ${env.JOB_NAME}</p>
+                            <p>Build Number: ${env.BUILD_NUMBER}</p>
+                            <p>Duration: ${currentBuild.durationString}</p>
+                            <p>Build URL: <a href='${env.BUILD_URL}'>${env.BUILD_URL}</a></p>
+                            <h3>Console Output:</h3>
+                            <pre>${currentBuild.rawBuild.getLog(100).join('\n')}</pre>
+                        """,
+                        mimeType: 'text/html',
+                        attachLog: true
+                    )
+                }
+            }
         }
         cleanup {
             script {
