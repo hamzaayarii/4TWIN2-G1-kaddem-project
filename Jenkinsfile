@@ -61,7 +61,7 @@ pipeline {
                 }
             }
         }
-
+/*
         stage('Deploy JAR to Nexus') {
                     steps {
                         dir('backend') {
@@ -86,6 +86,7 @@ pipeline {
                 }
             }
         }
+        */
     }
 
     post {

@@ -1,19 +1,15 @@
 package tn.esprit.spring.kaddem.controllers;
 
-import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.spring.kaddem.UniversiteServiceImpl;
 import tn.esprit.spring.kaddem.dto.UniversiteDTO;
-import tn.esprit.spring.kaddem.entities.Departement;
 import tn.esprit.spring.kaddem.entities.Universite;
-import tn.esprit.spring.kaddem.IUniversiteService;
 import tn.esprit.spring.kaddem.repositories.UniversiteRepository;
 
 import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/universite")
@@ -79,11 +75,4 @@ public class UniversiteRestController {
 			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // 500 Internal Server Error
 		}
 	}
-
-	@PutMapping(value="/affecter-universite-departement/{universiteId}/{departementId}")
-	public void affectertUniversiteToDepartement(@PathVariable("universiteId") Integer universiteId, @PathVariable("departementId")Integer departementId){
-		universiteService.assignUniversiteToDepartement(universiteId, departementId);
-	}
-
-
 }

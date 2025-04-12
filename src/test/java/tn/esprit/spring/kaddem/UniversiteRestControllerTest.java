@@ -23,7 +23,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-
 @RunWith(MockitoJUnitRunner.class)
 class UniversiteRestControllerTest {
 
@@ -101,6 +100,25 @@ class UniversiteRestControllerTest {
     }
 
 
+    @Test
+    void testUpdateUniversite() {
+        // Mock data
+        UniversiteDTO universiteDTO = new UniversiteDTO();
+        universiteDTO.setNomUniv("Universite1");
+
+        // Mocking behavior
+        when(universiteService.updateUniversite(any(Long.class), any(Universite.class))).thenReturn(new Universite());
+
+        // Perform the test
+        ResponseEntity<Universite> responseEntity = universiteController.updateUniversite(1L, universiteDTO);
+
+        // Verify the interactions
+        verify(universiteService, times(1)).updateUniversite(any(Long.class), any(Universite.class));
+
+        // Assertions
+        assertEquals(HttpStatus.OK, responseEntity.getStatusCode());
+        assertNotNull(responseEntity.getBody());
+    }
 
 
     @Test
