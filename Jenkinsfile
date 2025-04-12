@@ -49,12 +49,14 @@ pipeline {
                     withSonarQubeEnv('scanner') {
                         dir('backend') {
                             sh """
+                            mvn clean install -DskipTests
+                            mvn dependency:copy-dependencies -DoutputDirectory=target/dependency
                             ${scannerHome}/bin/sonar-scanner \
                             -Dsonar.projectKey=kaddem-devops \
                             -Dsonar.projectName='Kaddem DevOps Project' \
                             -Dsonar.sources=src/main \
                             -Dsonar.java.binaries=target/classes \
-                            -Dsonar.java.libraries=target/dependency/* \
+                            -Dsonar.java.libraries=target/dependency \
                             -Dsonar.scm.provider=git
                             """
                         }
