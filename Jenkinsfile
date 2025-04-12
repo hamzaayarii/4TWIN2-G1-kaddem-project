@@ -40,7 +40,7 @@ pipeline {
         stage('Push to Docker Hub') {
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerr') {
+                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
                         docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
                     }
                 }
@@ -48,22 +48,22 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-    steps {
-        sh '''
-            # Force stop and remove all containers
-            docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
-            
-            # Additional cleanup for any lingering containers
-            docker rm -f $(docker ps -aq --filter name=kaddem) || true
-            
-            # Small delay to ensure cleanup completes
-            sleep 5
-            
-            # Build and start fresh
-            docker-compose up -d --build --force-recreate
-        '''
-    }
-}
+            steps {
+                sh '''
+                    # Force stop and remove all containers
+                    docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
+                    
+                    # Additional cleanup for any lingering containers
+                    docker rm -f $(docker ps -aq --filter name=kaddem) || true
+                    
+                    # Small delay to ensure cleanup completes
+                    sleep 5
+                    
+                    # Build and start fresh
+                    docker-compose up -d --build --force-recreate
+                '''
+            }
+        }
     }
     // Notifications & Cleanup
     post {
