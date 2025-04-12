@@ -13,7 +13,7 @@ pipeline {
         stage('Build') {
             steps {
                 configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    bat 'mvn -s %MAVEN_SETTINGS% clean install'
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
                 }
             }
         }
@@ -21,7 +21,7 @@ pipeline {
         stage('Test') {
             steps {
                 configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    bat 'mvn -s %MAVEN_SETTINGS% test'
+                    sh 'mvn -s $MAVEN_SETTINGS test'
                 }
             }
         }
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                        bat 'mvn -s %MAVEN_SETTINGS% sonar:sonar'
+                        sh 'mvn -s $MAVEN_SETTINGS sonar:sonar'
                     }
                 }
             }
@@ -39,7 +39,7 @@ pipeline {
         stage('Deploy to Nexus') {
             steps {
                 configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    bat 'mvn -s %MAVEN_SETTINGS% deploy -DskipTests'
+                    sh 'mvn -s $MAVEN_SETTINGS deploy -DskipTests'
                 }
             }
         }
@@ -47,7 +47,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
                 }
             }
         }
@@ -56,8 +56,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        bat "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
-                        bat "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        sh "echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin"
+                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     }
                 }
             }
@@ -66,12 +66,12 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    bat """
+                    sh '''
                         docker-compose down --rmi all --volumes --remove-orphans || true
                         docker rm -f kaddem || true
-                        timeout 5
+                        sleep 5
                         docker-compose up -d --build --force-recreate
-                    """
+                    '''
                 }
             }
         }
@@ -109,7 +109,7 @@ pipeline {
         cleanup {
             script {
                 if (env.DOCKER_AVAILABLE.toBoolean()) {
-                    bat "docker-compose down || true"
+                    sh 'docker-compose down || true'
                 }
             }
         }
