@@ -12,42 +12,34 @@ pipeline {
         // Stage 1: Build
         stage('Build') {
             steps {
-                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS clean install'
-                }
+                sh 'mvn clean install -DskipTests'
             }
         }
         // Stage 2: Test
         stage('Test') {
             steps {
-                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS test'
-                }
+                sh 'mvn test'
             }
         }
         // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS sonar:sonar'
-                    }
+                    sh 'mvn sonar:sonar'
                 }
             }
         }
         // Stage 4: Nexus Deploy
         stage('Deploy to Nexus') {
             steps {
-                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS deploy -DskipTests'
-                }
+                sh 'mvn deploy -DskipTests'
             }
         }
         // Stage 5: Docker Build
         stage('Build Docker Image') {
             steps {
                 script {
-                    bat "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
                 }
             }
         }
@@ -56,8 +48,8 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        bat "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
-                        bat "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     }
                 }
             }
@@ -66,10 +58,10 @@ pipeline {
         stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    bat """
+                    sh """
                         docker-compose down --rmi all --volumes --remove-orphans || true
                         docker rm -f kaddem || true
-                        timeout 5
+                        sleep 5
                         docker-compose up -d --build --force-recreate
                     """
                 }
@@ -109,7 +101,7 @@ pipeline {
         cleanup {
             script {
                 if (env.DOCKER_AVAILABLE.toBoolean()) {
-                    bat "docker-compose down || true"
+                    sh "docker-compose down || true"
                 }
             }
         }
