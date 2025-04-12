@@ -1,0 +1,8 @@
+
+mysql -u root -p
+password:root
+USE kaddem_db;
+SHOW TABLES;
+SELECT * FROM universite;
+
+curl http://localhost:8089/kaddem/universite/universites/1

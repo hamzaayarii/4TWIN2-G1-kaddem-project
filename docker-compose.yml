@@ -21,7 +21,7 @@ services:
     # build: ./backend  # Uncomment if you want to build the backend locally
     restart: on-failure
     ports:
-      - 8082:8082
+      - 8082:8089
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/kaddem_db?createDatabaseIfNotExist=true&userSSL=false&max_allowed_packet=15728640
       - SPRING_DATASOURCE_USERNAME=root
@@ -36,7 +36,7 @@ services:
     image: hamzabox/ayarihamza-g1-kaddem-frontend:6
     container_name: kaddem-frontend
     ports:
-      - "4200:80"
+      - 4200:80
     depends_on:
       - backend
     networks:
