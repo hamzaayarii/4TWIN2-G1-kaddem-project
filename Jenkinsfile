@@ -67,7 +67,7 @@ pipeline {
             steps {
                 sh '''
                     # Force stop and remove all containers
-                    docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
+                    docker compose down --rmi all --volumes --remove-orphans --timeout 1 || true
                     
                     # Additional cleanup for any lingering containers
                     docker ps -aq --filter name=kaddem | xargs -r docker rm -f || true
@@ -76,7 +76,7 @@ pipeline {
                     sleep 5
                     
                     # Build and start fresh
-                    docker-compose up -d --build --force-recreate
+                    docker compose up -d --build --force-recreate
                 '''
             }
         }
@@ -115,7 +115,7 @@ pipeline {
             sh 'docker logout'
         }
         cleanup {
-            sh 'docker-compose down || true'
+            sh 'docker compose down || true'
         }
     }
 }
