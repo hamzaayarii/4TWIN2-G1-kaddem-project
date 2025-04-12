@@ -7,7 +7,7 @@ pipeline {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem-project"
+        SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem"
     }
     stages {
         // Stage 1: Build
@@ -29,17 +29,22 @@ pipeline {
         }
         // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
-            environment {
-                SONAR_TOKEN = credentials('sonar-token')
-            }
             steps {
-                withSonarQubeEnv('SonarQube') {
+                withSonarQubeEnv(installationName: 'SonarQube') {
                     sh """
                         mvn sonar:sonar \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://sonarqube:9000 \
-                        -Dsonar.login=${SONAR_TOKEN}
+                        -Dsonar.projectName=${SONAR_PROJECT_KEY} \
+                        -Dsonar.host.url=http://sonarqube:9000
                     """
+                }
+            }
+        }
+        // Stage 3.1: Quality Gate
+        stage('Quality Gate') {
+            steps {
+                timeout(time: 1, unit: 'HOURS') {
+                    waitForQualityGate abortPipeline: true
                 }
             }
         }
