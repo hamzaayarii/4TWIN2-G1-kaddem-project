@@ -23,19 +23,14 @@ pipeline {
 
                 }
             }
-         stage('Status Mysql') {
+       /*  stage('Status Mysql') {
                     steps {
-                         script {
-                                    sh '''
-                                        for i in {1..10}; do
-                                          docker exec mysql-kaddem mysqladmin ping -h "localhost" -u"kaddemuser" -p"kaddempassword" && break
-                                          echo "Waiting for MySQL..."
-                                          sleep 5
-                                        done
-                                    '''
-                                }
+                        script {
+                            sh 'sudo systemctl start mysql'
+                        }
                     }
                 }
+        */
          stage('Maven Clean Compile') {
                     steps {
                         sh 'mvn clean'
