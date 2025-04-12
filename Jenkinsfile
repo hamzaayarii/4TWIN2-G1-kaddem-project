@@ -8,8 +8,12 @@ pipeline {
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem"
-        // Define network names from docker-compose
-        DOCKER_NETWORK = "devops-tools_default"
+        MYSQL_STARTUP_TIMEOUT = 45
+        APP_STARTUP_TIMEOUT = 30
+        // Network and container names
+        DOCKER_NETWORK = "kaddem-network"
+        MYSQL_CONTAINER = "mysql"
+        APP_CONTAINER = "kaddem-app"
     }
     stages {
         // Stage 1: Build
@@ -37,7 +41,7 @@ pipeline {
                         mvn sonar:sonar \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectName=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://devops-tools-sonarqube-1:9000
+                        -Dsonar.host.url=http://sonarqube:9000
                     """
                 }
             }
@@ -77,15 +81,85 @@ pipeline {
                 }
             }
         }
-        // Stage 7: Deploy
-        stage('Deploy with Docker Compose') {
+        stage('Deploy MySQL') {
             steps {
                 script {
                     sh """
-                        docker-compose down --rmi all --volumes --remove-orphans || true
-                        docker rm -f kaddem || true
-                        sleep 5
-                        docker-compose up -d --build --force-recreate
+                        docker network create ${DOCKER_NETWORK} || true
+                        docker volume create mysql_data || true
+                        docker stop ${MYSQL_CONTAINER} || true
+                        docker rm ${MYSQL_CONTAINER} || true
+                        docker run -d --name ${MYSQL_CONTAINER} \
+                            --network ${DOCKER_NETWORK} \
+                            --health-cmd='mysqladmin ping -h localhost' \
+                            --health-interval=10s \
+                            --health-timeout=5s \
+                            --health-retries=3 \
+                            -v mysql_data:/var/lib/mysql \
+                            -e MYSQL_ROOT_PASSWORD=root \
+                            -e MYSQL_DATABASE=kaddem \
+                            mysql:8.0
+                        
+                        echo 'Waiting for MySQL to be ready...'
+                        timeout=${MYSQL_STARTUP_TIMEOUT}
+                        until docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -u root --password=root --silent || [ \$timeout -le 0 ]; do
+                            sleep 5
+                            timeout=\$((timeout-5))
+                            echo "Waiting for MySQL... \$timeout seconds remaining"
+                        done
+                        
+                        if [ \$timeout -le 0 ]; then
+                            echo "MySQL failed to start within timeout"
+                            exit 1
+                        fi
+                        
+                        echo "MySQL is ready!"
+                    """
+                }
+            }
+        }
+        // Stage 7: Deploy
+        stage('Deploy with Docker') {
+            steps {
+                script {
+                    sh """
+                        docker network create ${DOCKER_NETWORK} || true
+                        docker stop ${APP_CONTAINER} || true
+                        docker rm ${APP_CONTAINER} || true
+                        docker run -d --name ${APP_CONTAINER} \
+                            --network ${DOCKER_NETWORK} \
+                            -p 8089:8089 \
+                            -e SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQL_CONTAINER}:3306/kaddem?createDatabaseIfNotExist=true \
+                            -e SPRING_DATASOURCE_USERNAME=root \
+                            -e SPRING_DATASOURCE_PASSWORD=root \
+                            ${DOCKER_IMAGE}:${BUILD_NUMBER}
+                        
+                        echo "Waiting for application to start..."
+                        timeout=${APP_STARTUP_TIMEOUT}
+                        until curl -s http://localhost:8089/actuator/health || [ \$timeout -le 0 ]; do
+                            sleep 5
+                            timeout=\$((timeout-5))
+                            echo "Waiting for application... \$timeout seconds remaining"
+                        done
+                        
+                        if [ \$timeout -le 0 ]; then
+                            echo "Application failed to start within timeout"
+                            exit 1
+                        fi
+                        
+                        echo "Application is ready!"
+                    """
+                }
+            }
+        }
+        // Stage 8: Cleanup
+        stage('Cleanup') {
+            steps {
+                script {
+                    sh """
+                        docker stop ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
+                        docker rm ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
+                        docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} || true
                     """
                 }
             }
@@ -123,9 +197,11 @@ pipeline {
         }
         cleanup {
             script {
-                if (env.DOCKER_AVAILABLE.toBoolean()) {
-                    sh "docker-compose down || true"
-                }
+                sh """
+                    docker stop ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
+                    docker rm ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
+                    docker network rm ${DOCKER_NETWORK} || true
+                """
             }
         }
     }
