@@ -7,6 +7,7 @@ pipeline {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        DOCKER_NETWORK = "devops-tools-network"
     }
     stages {
         // Stage 1: Build
@@ -30,7 +31,10 @@ pipeline {
             steps {
                 withSonarQubeEnv('SonarQube') {
                     configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                        sh 'mvn -s $MAVEN_SETTINGS sonar:sonar'
+                        sh '''
+                            docker network connect ${DOCKER_NETWORK} sonarqube || true
+                            mvn -s $MAVEN_SETTINGS sonar:sonar -Dsonar.host.url=http://sonarqube:9000
+                        '''
                     }
                 }
             }
