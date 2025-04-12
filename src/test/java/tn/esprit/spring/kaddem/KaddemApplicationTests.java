@@ -1,4 +1,3 @@
-/*
 package tn.esprit.spring.kaddem;
 
 import org.junit.jupiter.api.Test;
@@ -10,8 +9,7 @@ class KaddemApplicationTests {
 
     @Test
     void contextLoads() {
-        // Ajoutez une assertion pour vérifier que le contexte se charge correctement
-        assertTrue(true); // Changez ceci en l'assertion appropriée pour votre test
+          assertTrue(true);
     }
 
-}*/
+}

@@ -23,7 +23,13 @@ pipeline {
 
                 }
             }
-
+         stage('Status Mysql') {
+                    steps {
+                        script {
+                                    sh 'docker ps | grep mysql-kaddem || docker start mysql-kaddem'
+                                }
+                    }
+                }
          stage('Maven Clean Compile') {
                     steps {
                         sh 'mvn clean'
