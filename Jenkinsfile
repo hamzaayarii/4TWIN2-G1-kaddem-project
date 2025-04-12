@@ -5,6 +5,7 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
+        DOCKER_AVAILABLE = false  // Set this to true once Docker is installed
     }
     stages {
         // Stage 1: Build
@@ -43,6 +44,9 @@ pipeline {
         }
         // Stage 5: Docker Build
         stage('Build Docker Image') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
                 script {
                     docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}", ".")
@@ -51,6 +55,9 @@ pipeline {
         }
         // Stage 6: Push to Docker Hub
         stage('Push to Docker Hub') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
                 script {
                     docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
@@ -61,6 +68,9 @@ pipeline {
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
+            when {
+                expression { return env.DOCKER_AVAILABLE.toBoolean() }
+            }
             steps {
                 sh '''
                     # Force stop and remove all containers
@@ -94,7 +104,11 @@ pipeline {
             )
         }
         cleanup {
-            sh 'docker-compose down || true'
+            script {
+                if (env.DOCKER_AVAILABLE.toBoolean()) {
+                    sh 'docker-compose down || true'
+                }
+            }
         }
     }
 }
