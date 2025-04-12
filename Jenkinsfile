@@ -1,5 +1,10 @@
 pipeline {
-    agent any
+    agent {
+        docker {
+            image 'maven:3.9.3-eclipse-temurin-17'
+            args '-v /var/run/docker.sock:/var/run/docker.sock'
+        }
+    }
     tools {
         maven 'Maven-3.9.3'
     }
@@ -16,6 +21,18 @@ pipeline {
         APP_CONTAINER = "kaddem-app"
     }
     stages {
+        stage('Setup') {
+            steps {
+                sh '''
+                    apt-get update
+                    apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
+                    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
+                    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
+                    apt-get update
+                    apt-get install -y docker-ce-cli
+                '''
+            }
+        }
         // Stage 1: Build
         stage('Build') {
             steps {
@@ -41,7 +58,7 @@ pipeline {
                         mvn sonar:sonar \
                         -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
                         -Dsonar.projectName=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://sonarqube:9000
+                        -Dsonar.host.url=http://localhost:9000
                     """
                 }
             }
