@@ -54,6 +54,7 @@ pipeline {
                             -Dsonar.projectName='Kaddem DevOps Project' \
                             -Dsonar.sources=src/main \
                             -Dsonar.java.binaries=target/classes \
+                            -Dsonar.java.libraries=target/dependency/* \
                             -Dsonar.scm.provider=git
                             """
                         }
@@ -61,6 +62,7 @@ pipeline {
                 }
             }
         }
+
 /*
         stage('Deploy JAR to Nexus') {
                     steps {
