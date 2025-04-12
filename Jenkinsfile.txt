@@ -27,6 +27,16 @@ pipeline {
                 }
             }
         }
+        stage('Checkstyle') {
+            steps {
+                sh 'mvn checkstyle:check'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/checkstyle-result.xml', allowEmptyArchive: true
+                }
+            }
+        }
         stage('JaCoCo Code Coverage') {
             steps {
                 sh 'mvn jacoco:report'
@@ -52,7 +62,7 @@ pipeline {
                 archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
             }
         }
-        stage('Deploy to Nexus') {
+        stage('Deploy') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
                     sh """
