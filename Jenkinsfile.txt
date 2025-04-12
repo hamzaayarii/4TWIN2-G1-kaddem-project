@@ -1,10 +1,20 @@
 pipeline {
     agent any
+    environment {
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
+        NEXUS_CREDENTIALS = credentials('nexus-credentials')
+        GITHUB_CREDENTIALS = credentials('github-credentials')
+        DOCKER_IMAGE_NAME = "oussamakaddech/kaddem"
+        DOCKER_TAG = "${env.BUILD_NUMBER}"
+        NEXUS_URL = "http://localhost:8081/repository/maven-releases/"
+        SONAR_URL = "http://10.0.2.15:9000"
+    }
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git', 
-                    branch: 'oussamakaddech-4Twin2-G1'
+                git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git',
+                    branch: 'oussamakaddech-4Twin2-G1',
+                    credentialsId: 'github-credentials'
             }
         }
         stage('Build') {
@@ -16,20 +26,76 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('JaCoCo Code Coverage') {
+            steps {
+                sh 'mvn jacoco:report'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/site/jacoco/index.html', allowEmptyArchive: true
+                }
+            }
         }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.host.url=http://10.0.2.15:9000 -Dsonar.login=squ_59cdc3d52534d85da3905bcf3e1f38630fea98b0'
-                    }
+                    sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=squ_59cdc3d52534d85da3905bcf3e1f38630fea98b0"
                 }
             }
         }
-        stage('Deploy') {
+        stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    sh """
+                        mvn deploy -DskipTests \
+                        -DaltDeploymentRepository=nexus::default::${NEXUS_URL} \
+                        -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}
+                    """
+                }
             }
+        }
+        stage('Build Docker Image') {
+            steps {
+                sh "docker build -t ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ."
+            }
+        }
+        stage('Push to Docker Hub') {
+            steps {
+                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh "docker push ${DOCKER_IMAGE_NAME}:${DOCKER_TAG}"
+            }
+        }
+        stage('Deploy with Docker Compose') {
+            steps {
+                sh 'docker-compose -f docker-compose.yml up -d'
+            }
+        }
+        stage('Monitor Services with Prometheus and Grafana') {
+            steps {
+                sh '''
+                    docker ps --format "{{.Names}} {{.Status}}"
+                    curl -s http://localhost:8089/kaddem/actuator/prometheus > metrics.txt
+                    curl -s http://localhost:9090/api/v1/query?query=up | jq .
+                '''
+                archiveArtifacts artifacts: 'metrics.txt', allowEmptyArchive: true
+            }
+        }
+    }
+    post {
+        always {
+            sh 'docker-compose -f docker-compose.yml down || true'
+            sh "docker rmi ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} || true"
+        }
+        failure {
+            mail to: 'Oussama.KADDECH@esprit.tn',
+                 subject: "Pipeline Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
+                 body: "Pipeline failed in stage '${currentBuild.getCurrentResult()}'. Check: ${env.BUILD_URL}"
         }
     }
 }

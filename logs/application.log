@@ -1,34 +1,136 @@
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
-2025-03-31 00:48:35 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
-2025-03-31 00:48:35 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-03-31T00:48:35.867+0100 and 2025-04-30T00:48:35.867+0100
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Wed Apr 30 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 300.0 for period between 2025-03-31T00:48:35.867+0100 and 2025-04-30T00:48:35.867+0100
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Student Doe John has 0 active contracts
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract ID: 1 assigned to student: Doe John
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Removing contract with ID: 1
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract with ID: 1 removed successfully
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving all contracts
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieved 1 contracts
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Attempted to add an archived contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Updating contract with ID: 1
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract updated successfully: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-03-31T00:48:35.945+0100 and 2025-04-30T00:48:35.945+0100
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Wed Apr 30 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Wed Apr 30 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=500, etudiant=null)
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 500
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 800.0 for period between 2025-03-31T00:48:35.945+0100 and 2025-04-30T00:48:35.945+0100
-2025-03-31 00:48:35 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Mon Mar 31 00:48:35 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
-2025-03-31 00:48:35 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract added successfully with ID: 1
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:08:38 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:08:38 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:08:38.097+0100 and 2025-05-12T16:08:38.097+0100
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 300.0 for period between 2025-04-12T16:08:38.097+0100 and 2025-05-12T16:08:38.097+0100
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Student Doe John has 0 active contracts
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract ID: 1 assigned to student: Doe John
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Removing contract with ID: 1
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract with ID: 1 removed successfully
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving all contracts
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieved 1 contracts
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Attempted to add an archived contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Updating contract with ID: 1
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract updated successfully: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:08:38.184+0100 and 2025-05-12T16:08:38.184+0100
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=500, etudiant=null)
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 500
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 800.0 for period between 2025-04-12T16:08:38.184+0100 and 2025-05-12T16:08:38.184+0100
+2025-04-12 16:08:38 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:08:38 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:08:38 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract added successfully with ID: 1
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:16:44 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:16:44 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:16:44.193+0100 and 2025-05-12T16:16:44.193+0100
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 300.0 for period between 2025-04-12T16:16:44.193+0100 and 2025-05-12T16:16:44.193+0100
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Student Doe John has 0 active contracts
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract ID: 1 assigned to student: Doe John
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Removing contract with ID: 1
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract with ID: 1 removed successfully
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving all contracts
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieved 1 contracts
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Attempted to add an archived contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Updating contract with ID: 1
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract updated successfully: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:16:44.254+0100 and 2025-05-12T16:16:44.254+0100
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=500, etudiant=null)
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 500
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 800.0 for period between 2025-04-12T16:16:44.254+0100 and 2025-05-12T16:16:44.254+0100
+2025-04-12 16:16:44 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:16:44 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:16:44 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract added successfully with ID: 1
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:17:19 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:17:19 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:17:19.262+0100 and 2025-05-12T16:17:19.262+0100
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 300.0 for period between 2025-04-12T16:17:19.262+0100 and 2025-05-12T16:17:19.262+0100
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Student Doe John has 0 active contracts
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract ID: 1 assigned to student: Doe John
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Removing contract with ID: 1
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract with ID: 1 removed successfully
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving all contracts
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieved 1 contracts
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Attempted to add an archived contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Updating contract with ID: 1
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract updated successfully: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T16:17:19.337+0100 and 2025-05-12T16:17:19.337+0100
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=500, etudiant=null)
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 500
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 800.0 for period between 2025-04-12T16:17:19.337+0100 and 2025-05-12T16:17:19.337+0100
+2025-04-12 16:17:19 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 16:17:19 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 16:17:19 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract added successfully with ID: 1
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 17:08:30 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 17:08:30 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Student not found: Doe John
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T17:08:30.885+0100 and 2025-05-12T17:08:30.885+0100
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 300.0 for period between 2025-04-12T17:08:30.885+0100 and 2025-05-12T17:08:30.885+0100
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Assigning contract ID: 1 to student: Doe John
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Student Doe John has 0 active contracts
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract ID: 1 assigned to student: Doe John
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Removing contract with ID: 1
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract with ID: 1 removed successfully
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving contract with ID: 1
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract found: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieving all contracts
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Retrieved 1 contracts
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] WARN  tn.esprit.spring.kaddem.services.ContratServiceImpl - Attempted to add an archived contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=true, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Updating contract with ID: 1
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract updated successfully: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculating revenue between 2025-04-12T17:08:30.964+0100 and 2025-05-12T17:08:30.964+0100
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=300, etudiant=null)
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 300
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract: Contrat(idContrat=null, dateDebutContrat=null, dateFinContrat=Mon May 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=500, etudiant=null)
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract is active and not archived
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract within range. Adding montant: 500
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Calculated revenue: 800.0 for period between 2025-04-12T17:08:30.964+0100 and 2025-05-12T17:08:30.964+0100
+2025-04-12 17:08:30 [main] INFO  tn.esprit.spring.kaddem.services.ContratServiceImpl - Adding new contract: Contrat(idContrat=1, dateDebutContrat=null, dateFinContrat=Sat Apr 12 17:08:30 GMT+01:00 2025, specialite=IA, archive=false, montantContrat=1000, etudiant=null)
+2025-04-12 17:08:30 [main] DEBUG tn.esprit.spring.kaddem.services.ContratServiceImpl - Contract added successfully with ID: 1
