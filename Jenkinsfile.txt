@@ -90,12 +90,7 @@ pipeline {
     post {
         always {
             sh 'docker-compose -f docker-compose.yml down || true'
-            sh "docker rmi ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} || true"
-        }
-        failure {
-            mail to: 'Oussama.KADDECH@esprit.tn',
-                 subject: "Pipeline Failure: ${env.JOB_NAME} #${env.BUILD_NUMBER}",
-                 body: "Pipeline failed in stage '${currentBuild.getCurrentResult()}'. Check: ${env.BUILD_URL}"
+            sh "docker rmi ${DOCKER_IMAGE_NAME}:${DOCKER_TAG} ||  || true"
         }
     }
 }
