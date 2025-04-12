@@ -1,10 +1,15 @@
 pipeline {
     agent any
+    environment {
+        SONAR_URL = 'http://10.0.2.15:9000'
+        NEXUS_URL = 'http://localhost:8081/repository/maven-releases/'
+    }
     stages {
         stage('Checkout') {
             steps {
-                git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git', 
-                    branch: 'oussamakaddech-4Twin2-G1'
+                git url: 'https://github.com/hamzaayarii/4TWIN2-G1-kaddem-project.git',
+                    branch: 'oussamakaddech-4Twin2-G1',
+                    credentialsId: 'github-credentials'
             }
         }
         stage('Build') {
@@ -16,19 +21,67 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('Checkstyle') {
+            steps {
+                sh 'mvn checkstyle:checkstyle'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/checkstyle-result.xml', allowEmptyArchive: true
+                    recordIssues enabledForFailure: true, tool: checkStyle(pattern: 'target/checkstyle-result.xml')
+                }
+            }
+        }
+        stage('JaCoCo Code Coverage') {
+            steps {
+                sh 'mvn jacoco:report'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/site/jacoco/index.html', allowEmptyArchive: true
+                }
+            }
         }
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh 'mvn sonar:sonar -Dsonar.host.url=http://10.0.2.15:9000/ -Dsonar.login=squ_59cdc3d52534d85da3905bcf3e1f38630fea98b0'
-                    }
+                    sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=squ_59cdc3d52534d85da3905bcf3e1f38630fea98b0"
                 }
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn package -DskipTests'
+                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
             }
         }
         stage('Deploy') {
             steps {
-                sh 'mvn deploy -DskipTests -s /usr/share/maven/conf/settings.xml'
+                withCredentials([usernamePassword(credentialsId: 'nexus-credentials', usernameVariable: 'NEXUS_USER', passwordVariable: 'NEXUS_PASS')]) {
+                    sh """
+                        mvn deploy -DskipTests \
+                        -DaltDeploymentRepository=nexus::default::${NEXUS_URL} \
+                        -Dusername=${NEXUS_USER} -Dpassword=${NEXUS_PASS}
+                    """
+                }
+            }
+        }
+    }
+    post {
+        success {
+            node {
+                echo 'Pipeline completed successfully.'
+            }
+        }
+        failure {
+            node {
+                echo 'Pipeline failed. Check logs for details.'
             }
         }
     }
