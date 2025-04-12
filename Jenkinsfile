@@ -1,10 +1,5 @@
 pipeline {
-    agent {
-        docker {
-            image 'maven:3.9.3-eclipse-temurin-17'
-            args '-v /var/run/docker.sock:/var/run/docker.sock'
-        }
-    }
+    agent any
     tools {
         maven 'Maven-3.9.3'
     }
@@ -21,18 +16,6 @@ pipeline {
         APP_CONTAINER = "kaddem-app"
     }
     stages {
-        stage('Setup') {
-            steps {
-                sh '''
-                    apt-get update
-                    apt-get install -y apt-transport-https ca-certificates curl gnupg2 software-properties-common
-                    curl -fsSL https://download.docker.com/linux/debian/gpg | apt-key add -
-                    add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/debian $(lsb_release -cs) stable"
-                    apt-get update
-                    apt-get install -y docker-ce-cli
-                '''
-            }
-        }
         // Stage 1: Build
         stage('Build') {
             steps {
@@ -173,11 +156,11 @@ pipeline {
         stage('Cleanup') {
             steps {
                 script {
-                    sh """
-                        docker stop ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
-                        docker rm ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
-                        docker rmi ${DOCKER_IMAGE}:${BUILD_NUMBER} || true
-                    """
+                    sh '''
+                        docker ps -aq | xargs docker stop || true
+                        docker ps -aq | xargs docker rm || true
+                        docker network rm kaddem-network || true
+                    '''
                 }
             }
         }
@@ -214,11 +197,11 @@ pipeline {
         }
         cleanup {
             script {
-                sh """
-                    docker stop ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
-                    docker rm ${APP_CONTAINER} ${MYSQL_CONTAINER} || true
-                    docker network rm ${DOCKER_NETWORK} || true
-                """
+                sh '''
+                    docker ps -aq | xargs docker stop || true
+                    docker ps -aq | xargs docker rm || true
+                    docker network rm kaddem-network || true
+                '''
             }
         }
     }
