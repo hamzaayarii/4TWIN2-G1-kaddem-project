@@ -1,10 +1,8 @@
 pipeline {
     agent any
     environment {
-        NEXUS_CREDENTIALS = credentials('nexus-credentials')
-        GITHUB_CREDENTIALS = credentials('github-credentials')
-        NEXUS_URL = "http://localhost:8081/repository/maven-releases/"
-        SONAR_URL = "http://10.0.2.15:9000"
+        SONAR_URL = 'http://10.0.2.15:9000'
+        NEXUS_URL = 'http://localhost:8081/repository/maven-releases/'
     }
     stages {
         stage('Checkout') {
@@ -42,8 +40,16 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.login=squ_59cdc3d52534d85da3905bcf3e1f38630fea98b0"
+                    withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh "mvn sonar:sonar -Dsonar.host.url=${SONAR_URL} -Dsonar.token=${SONAR_TOKEN}"
+                    }
                 }
+            }
+        }
+        stage('Package') {
+            steps {
+                sh 'mvn package -DskipTests'
+                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
             }
         }
         stage('Deploy to Nexus') {
@@ -56,6 +62,14 @@ pipeline {
                     """
                 }
             }
+        }
+    }
+    post {
+        success {
+            echo 'Pipeline completed successfully.'
+        }
+        failure {
+            echo 'Pipeline failed. Check logs for details.'
         }
     }
 }
