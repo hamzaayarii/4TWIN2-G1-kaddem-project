@@ -10,27 +10,35 @@ pipeline {
         // Stage 1: Build
         stage('Build') {
             steps {
-                sh 'mvn clean install'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS clean install'
+                }
             }
         }
         // Stage 2: Test
         stage('Test') {
             steps {
-                sh 'mvn test'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS test'
+                }
             }
         }
         // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'mvn sonar:sonar'
+                    configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                        sh 'mvn -s $MAVEN_SETTINGS sonar:sonar'
+                    }
                 }
             }
         }
         // Stage 4: Nexus Deploy
         stage('Deploy to Nexus') {
             steps {
-                sh 'mvn deploy -DskipTests'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    sh 'mvn -s $MAVEN_SETTINGS deploy -DskipTests'
+                }
             }
         }
         // Stage 5: Docker Build
