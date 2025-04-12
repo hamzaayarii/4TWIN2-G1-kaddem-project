@@ -5,7 +5,8 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
-        DOCKER_AVAILABLE = false  // Set this to true once Docker is installed
+        DOCKER_AVAILABLE = true
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
     stages {
         // Stage 1: Build
@@ -44,47 +45,34 @@ pipeline {
         }
         // Stage 5: Docker Build
         stage('Build Docker Image') {
-            when {
-                expression { return env.DOCKER_AVAILABLE.toBoolean() }
-            }
             steps {
                 script {
-                    docker.build("${DOCKER_IMAGE}:${env.BUILD_NUMBER}", ".")
+                    bat "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
                 }
             }
         }
         // Stage 6: Push to Docker Hub
         stage('Push to Docker Hub') {
-            when {
-                expression { return env.DOCKER_AVAILABLE.toBoolean() }
-            }
             steps {
                 script {
-                    docker.withRegistry('https://registry.hub.docker.com', 'dockerhub') {
-                        docker.image("${DOCKER_IMAGE}:${env.BUILD_NUMBER}").push()
+                    withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
+                        bat "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
+                        bat "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     }
                 }
             }
         }
         // Stage 7: Deploy
         stage('Deploy with Docker Compose') {
-            when {
-                expression { return env.DOCKER_AVAILABLE.toBoolean() }
-            }
             steps {
-                sh '''
-                    # Force stop and remove all containers
-                    docker-compose down --rmi all --volumes --remove-orphans --timeout 1 || true
-                    
-                    # Additional cleanup for any lingering containers
-                    docker rm -f $(docker ps -aq --filter name=kaddem) || true
-                    
-                    # Small delay to ensure cleanup completes
-                    sleep 5
-                    
-                    # Build and start fresh
-                    docker-compose up -d --build --force-recreate
-                '''
+                script {
+                    bat """
+                        docker-compose down --rmi all --volumes --remove-orphans || true
+                        docker rm -f kaddem || true
+                        timeout 5
+                        docker-compose up -d --build --force-recreate
+                    """
+                }
             }
         }
     }
@@ -121,7 +109,7 @@ pipeline {
         cleanup {
             script {
                 if (env.DOCKER_AVAILABLE.toBoolean()) {
-                    sh 'docker-compose down || true'
+                    bat "docker-compose down || true"
                 }
             }
         }
