@@ -5,10 +5,25 @@ pipeline {
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
+        DOCKER_NETWORK = "devops_network"
     }
     stages {
+        // Stage 0: Setup Network
+        stage('Setup Network') {
+            steps {
+                sh '''
+                    docker network create ${DOCKER_NETWORK} || true
+                '''
+            }
+        }
         // Stage 1: Build
         stage('Build') {
+            agent {
+                docker {
+                    image 'maven:3.9.3-eclipse-temurin-17'
+                    args "-v /root/.m2:/root/.m2 --network ${DOCKER_NETWORK}"
+                }
+            }
             steps { sh 'mvn clean install' }
         }
         // Stage 2: Test
@@ -26,6 +41,12 @@ pipeline {
         }
         // Stage 4: Nexus Deploy
         stage('Deploy to Nexus') {
+            agent {
+                docker {
+                    image 'maven:3.9.3-eclipse-temurin-17'
+                    args "-v /root/.m2:/root/.m2 --network ${DOCKER_NETWORK}"
+                }
+            }
             steps { sh 'mvn deploy -DskipTests' }
         }
         // Stage 5: Docker Build
