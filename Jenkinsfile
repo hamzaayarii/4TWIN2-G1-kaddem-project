@@ -16,6 +16,20 @@ pipeline {
         APP_CONTAINER = "kaddem-app"
     }
     stages {
+        stage('Check Docker') {
+            steps {
+                script {
+                    try {
+                        sh '''
+                            docker --version
+                            docker ps
+                        '''
+                    } catch (Exception e) {
+                        error "Docker is not available or the Jenkins user doesn't have permission to use Docker. Please make sure Docker is installed and the Jenkins user has proper permissions."
+                    }
+                }
+            }
+        }
         // Stage 1: Build
         stage('Build') {
             steps {
