@@ -16,6 +16,21 @@ pipeline {
             steps {
                 sh 'mvn test'
             }
+            post {
+                always {
+                    junit '**/target/surefire-reports/*.xml'
+                }
+            }
+        }
+        stage('JaCoCo Code Coverage') {
+            steps {
+                sh 'mvn jacoco:report'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/site/jacoco/index.html', allowEmptyArchive: true
+                }
+            }
         }
         stage('SonarQube Analysis') {
             steps {
