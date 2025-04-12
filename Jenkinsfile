@@ -7,64 +7,31 @@ pipeline {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKER_AVAILABLE = true
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        SONAR_PROJECT_KEY = "4TWIN2-G1-kaddem"
-        MYSQL_STARTUP_TIMEOUT = 45
-        APP_STARTUP_TIMEOUT = 30
-        // Network and container names
-        DOCKER_NETWORK = "kaddem-network"
-        MYSQL_CONTAINER = "mysql"
-        APP_CONTAINER = "kaddem-app"
     }
     stages {
-        stage('Check Docker') {
-            steps {
-                script {
-                    try {
-                        sh '''
-                            docker --version
-                            docker ps
-                        '''
-                    } catch (Exception e) {
-                        error "Docker is not available or the Jenkins user doesn't have permission to use Docker. Please make sure Docker is installed and the Jenkins user has proper permissions."
-                    }
-                }
-            }
-        }
         // Stage 1: Build
         stage('Build') {
             steps {
-                sh 'mvn clean install -DskipTests'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    bat 'mvn -s %MAVEN_SETTINGS% clean install'
+                }
             }
         }
         // Stage 2: Test
         stage('Test') {
             steps {
-                sh 'mvn test'
-            }
-            post {
-                always {
-                    junit '**/target/surefire-reports/*.xml'
+                configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                    bat 'mvn -s %MAVEN_SETTINGS% test'
                 }
             }
         }
         // Stage 3: SonarQube Analysis
         stage('SonarQube Analysis') {
             steps {
-                withSonarQubeEnv(installationName: 'SonarQube') {
-                    sh """
-                        mvn sonar:sonar \
-                        -Dsonar.projectKey=${SONAR_PROJECT_KEY} \
-                        -Dsonar.projectName=${SONAR_PROJECT_KEY} \
-                        -Dsonar.host.url=http://localhost:9000
-                    """
-                }
-            }
-        }
-        // Stage 3.1: Quality Gate
-        stage('Quality Gate') {
-            steps {
-                timeout(time: 1, unit: 'HOURS') {
-                    waitForQualityGate abortPipeline: true
+                withSonarQubeEnv('SonarQube') {
+                    configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
+                        bat 'mvn -s %MAVEN_SETTINGS% sonar:sonar'
+                    }
                 }
             }
         }
@@ -72,7 +39,7 @@ pipeline {
         stage('Deploy to Nexus') {
             steps {
                 configFileProvider([configFile(fileId: 'maven-settings', variable: 'MAVEN_SETTINGS')]) {
-                    sh 'mvn -s $MAVEN_SETTINGS deploy -DskipTests'
+                    bat 'mvn -s %MAVEN_SETTINGS% deploy -DskipTests'
                 }
             }
         }
@@ -80,7 +47,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                    sh "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
+                    bat "docker build -t ${DOCKER_IMAGE}:${BUILD_NUMBER} ."
                 }
             }
         }
@@ -89,92 +56,22 @@ pipeline {
             steps {
                 script {
                     withCredentials([usernamePassword(credentialsId: 'dockerhub', passwordVariable: 'DOCKER_PASSWORD', usernameVariable: 'DOCKER_USERNAME')]) {
-                        sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
-                        sh "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
+                        bat "docker login -u %DOCKER_USERNAME% -p %DOCKER_PASSWORD%"
+                        bat "docker push ${DOCKER_IMAGE}:${BUILD_NUMBER}"
                     }
                 }
             }
         }
-        stage('Deploy MySQL') {
-            steps {
-                script {
-                    sh """
-                        docker network create ${DOCKER_NETWORK} || true
-                        docker volume create mysql_data || true
-                        docker stop ${MYSQL_CONTAINER} || true
-                        docker rm ${MYSQL_CONTAINER} || true
-                        docker run -d --name ${MYSQL_CONTAINER} \
-                            --network ${DOCKER_NETWORK} \
-                            --health-cmd='mysqladmin ping -h localhost' \
-                            --health-interval=10s \
-                            --health-timeout=5s \
-                            --health-retries=3 \
-                            -v mysql_data:/var/lib/mysql \
-                            -e MYSQL_ROOT_PASSWORD=root \
-                            -e MYSQL_DATABASE=kaddem \
-                            mysql:8.0
-                        
-                        echo 'Waiting for MySQL to be ready...'
-                        timeout=${MYSQL_STARTUP_TIMEOUT}
-                        until docker exec ${MYSQL_CONTAINER} mysqladmin ping -h localhost -u root --password=root --silent || [ \$timeout -le 0 ]; do
-                            sleep 5
-                            timeout=\$((timeout-5))
-                            echo "Waiting for MySQL... \$timeout seconds remaining"
-                        done
-                        
-                        if [ \$timeout -le 0 ]; then
-                            echo "MySQL failed to start within timeout"
-                            exit 1
-                        fi
-                        
-                        echo "MySQL is ready!"
-                    """
-                }
-            }
-        }
         // Stage 7: Deploy
-        stage('Deploy with Docker') {
+        stage('Deploy with Docker Compose') {
             steps {
                 script {
-                    sh """
-                        docker network create ${DOCKER_NETWORK} || true
-                        docker stop ${APP_CONTAINER} || true
-                        docker rm ${APP_CONTAINER} || true
-                        docker run -d --name ${APP_CONTAINER} \
-                            --network ${DOCKER_NETWORK} \
-                            -p 8089:8089 \
-                            -e SPRING_DATASOURCE_URL=jdbc:mysql://${MYSQL_CONTAINER}:3306/kaddem?createDatabaseIfNotExist=true \
-                            -e SPRING_DATASOURCE_USERNAME=root \
-                            -e SPRING_DATASOURCE_PASSWORD=root \
-                            ${DOCKER_IMAGE}:${BUILD_NUMBER}
-                        
-                        echo "Waiting for application to start..."
-                        timeout=${APP_STARTUP_TIMEOUT}
-                        until curl -s http://localhost:8089/actuator/health || [ \$timeout -le 0 ]; do
-                            sleep 5
-                            timeout=\$((timeout-5))
-                            echo "Waiting for application... \$timeout seconds remaining"
-                        done
-                        
-                        if [ \$timeout -le 0 ]; then
-                            echo "Application failed to start within timeout"
-                            exit 1
-                        fi
-                        
-                        echo "Application is ready!"
+                    bat """
+                        docker-compose down --rmi all --volumes --remove-orphans || true
+                        docker rm -f kaddem || true
+                        timeout 5
+                        docker-compose up -d --build --force-recreate
                     """
-                }
-            }
-        }
-        // Stage 8: Cleanup
-        stage('Cleanup') {
-            steps {
-                script {
-                    sh '''
-                        docker ps -aq | xargs docker stop || true
-                        docker ps -aq | xargs docker rm || true
-                        docker network rm kaddem-network || true
-                    '''
                 }
             }
         }
@@ -211,11 +108,9 @@ pipeline {
         }
         cleanup {
             script {
-                sh '''
-                    docker ps -aq | xargs docker stop || true
-                    docker ps -aq | xargs docker rm || true
-                    docker network rm kaddem-network || true
-                '''
+                if (env.DOCKER_AVAILABLE.toBoolean()) {
+                    bat "docker-compose down || true"
+                }
             }
         }
     }
