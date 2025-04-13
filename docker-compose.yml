@@ -5,8 +5,10 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=rootpassword   # optional, for root access
       - MYSQL_DATABASE=kaddem_db
+      - MYSQL_USER=kaddem
+      - MYSQL_PASSWORD=kaddem
     ports:
       - 3306:3306
     volumes:
@@ -24,8 +26,8 @@ services:
     environment:
       SPRING_APPLICATION_JSON: '{
               "spring.datasource.url"  : "jdbc:mysql://mysqldb:3306/kaddem_db?createDatabaseIfNotExist=true",
-              "spring.datasource.username" : "root",
-              "spring.datasource.password" : null,
+              "spring.datasource.username" : "kaddem",
+              "spring.datasource.password" : "kaddem",
               "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL5InnoDBDialect",
               "spring.jpa.hibernate.ddl-auto" : "update"
             }'
