@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   spring-app:
     image: oussamakaddech4TWIN2/kaddem-project:${TAG}
@@ -22,7 +21,7 @@ services:
     networks:
       - app-network
   frontend:
-    image: nginx:latest # Replace with Angular if available
+    image: nginx:latest
     ports:
       - "80:80"
     networks:
