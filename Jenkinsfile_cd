@@ -1,9 +1,14 @@
 pipeline {
     agent any
 
+    parameters {
+        string(name: 'BACKEND_TAG', defaultValue: '1', description: 'Backend Docker image tag')
+        string(name: 'FRONTEND_TAG', defaultValue: '1', description: 'Frontend Docker image tag')
+    }
+
     environment {
-        BACKEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-api:3"
-        FRONTEND_IMAGE = "hamzabox/ayarihamza-g1-kaddem-frontend:6"
+        BACKEND_IMAGE = "hamzabox/AyariHamza-4TWIN2-G1-kaddem-api:${params.BACKEND_TAG}"
+        FRONTEND_IMAGE = "hamzabox/AyariHamza-4TWIN2-G1-kaddem-frontend:${params.FRONTEND_TAG}"
     }
 
     stages {
@@ -28,16 +33,5 @@ pipeline {
                 sh 'docker ps'
             }
         }
-
-
-
-        stage('Stop Services') {
-            steps {
-                echo "Stopping and cleaning up containers..."
-                sh 'docker-compose down'
-            }
-        }
     }
-
-
 }

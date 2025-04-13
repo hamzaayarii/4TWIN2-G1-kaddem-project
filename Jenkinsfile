@@ -9,7 +9,7 @@ pipeline {
      environment {
             DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
             DOCKER_USERNAME = "hamzabox"
-            BACKEND_IMAGE = "${DOCKER_USERNAME}/ayarihamza-g1-kaddem-api"
+            BACKEND_IMAGE = "${DOCKER_USERNAME}/AyariHamza-4TWIN2-G1-kaddem-api"
             BACKEND_TAG = "${BUILD_NUMBER}"
             NEXUS_REPO = "http://192.168.33.10:8083/repository/maven-snapshots/"
         }
@@ -86,6 +86,11 @@ pipeline {
                         sh "docker push ${BACKEND_IMAGE}:${BACKEND_TAG}"
                     }
                 }
+            }
+        }
+        stage('Trigger Frontend Build') {
+            steps {
+                build job: 'kaddem-frontend', wait: true
             }
         }
 

@@ -14,6 +14,7 @@ SELECT * FROM universite;
 http://localhost:8082/kaddem/swagger-ui/index.html#/
 docker-compose down
 docker-compose up -d
+docker-compose build --no-cache
 
 location /kaddem/ {
     proxy_pass http://backend:8089/kaddem/;
