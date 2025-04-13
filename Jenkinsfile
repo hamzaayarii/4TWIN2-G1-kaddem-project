@@ -82,50 +82,45 @@ pipeline {
         }
         // Stage 8: Deploy
         stage('Deploy with Docker Compose') {
+            tools {
+                maven 'M2_HOME'
+            }
             steps {
                 script {
-                    // Check if MySQL is running and healthy
+                    // MySQL Container Management
                     sh '''
                         echo "Checking MySQL container status..."
-                        if docker ps -q --filter name=kaddem-mysql | grep -q .; then
-                            echo "MySQL container is already running"
-                        else
+                        if ! docker ps -q --filter name=kaddem-mysql | grep -q .; then
                             echo "Starting MySQL container..."
                             docker compose up -d db
                             echo "Waiting for MySQL to be healthy..."
-                            attempt=1
-                            # MySQL typically needs 5-10 seconds to start
-                            while [ $attempt -le 10 ]; do
+                            for ((i=1; i<=6; i++)); do
                                 if docker ps --filter name=kaddem-mysql --filter health=healthy -q | grep -q .; then
                                     echo "MySQL is healthy!"
                                     break
                                 fi
-                                echo "Waiting for MySQL to be ready... ($attempt/10)"
-                                sleep 2
-                                attempt=$((attempt + 1))
+                                echo "Waiting for MySQL to be ready... ($i/6)"
+                                sleep 3
                             done
+                        else
+                            echo "MySQL container is already running"
                         fi
                     '''
 
-                    // Only rebuild and restart the application container
+                    // Application Deployment
                     sh '''
                         echo "Rebuilding and restarting application..."
                         docker compose up -d --build --no-deps app frontend
-                        
+
                         echo "Waiting for application to start..."
-                        attempt=1
-                        # Spring Boot typically starts in 10-15 seconds
-                        while [ $attempt -le 12 ]; do
-                            if docker ps --filter name=kaddem-app -q | grep -q .; then
-                                # Add a quick check for Spring Boot readiness
-                                if curl -s http://localhost:8089/kaddem/actuator/health | grep -q '"status":"UP"'; then
-                                    echo "Application is up and healthy!"
-                                    break
-                                fi
+                        for ((i=1; i<=8; i++)); do
+                            if docker ps --filter name=kaddem-app -q | grep -q . && \
+                               curl -s http://localhost:8089/kaddem/actuator/health | grep -q '"status":"UP"'; then
+                                echo "Application is up and running!"
+                                break
                             fi
-                            echo "Waiting for application to start... ($attempt/12)"
+                            echo "Waiting for application to start... ($i/8)"
                             sleep 3
-                            attempt=$((attempt + 1))
                         done
                     '''
                 }
