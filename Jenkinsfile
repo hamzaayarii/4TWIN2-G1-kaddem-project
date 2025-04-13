@@ -1,3 +1,4 @@
+// This pipeline implements CI/CD workflow with GitHub webhook integration
 pipeline {
     agent any
     triggers {
