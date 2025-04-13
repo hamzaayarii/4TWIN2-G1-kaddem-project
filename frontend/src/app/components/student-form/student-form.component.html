@@ -1,0 +1,30 @@
+<div class="form-page">
+  <h1>{{isEditing ? 'Edit' : 'Add'}} Student</h1>
+  
+  <form (ngSubmit)="onSubmit()" #studentForm="ngForm">
+    <div class="form-group">
+      <label for="firstName">First Name</label>
+      <input type="text" id="firstName" name="firstName" [(ngModel)]="student.prenomE" required>
+    </div>
+
+    <div class="form-group">
+      <label for="lastName">Last Name</label>
+      <input type="text" id="lastName" name="lastName" [(ngModel)]="student.nomE" required>
+    </div>
+
+    <div class="form-group">
+      <label for="option">Option</label>
+      <select id="option" name="option" [(ngModel)]="student.op">
+        <option [ngValue]="undefined">Select an option</option>
+        <option *ngFor="let opt of options" [value]="opt">{{opt}}</option>
+      </select>
+    </div>
+
+    <div class="form-actions">
+      <button type="button" class="cancel-btn" (click)="goBack()">Cancel</button>
+      <button type="submit" class="submit-btn" [disabled]="!studentForm.form.valid">
+        {{isEditing ? 'Update' : 'Create'}} Student
+      </button>
+    </div>
+  </form>
+</div>

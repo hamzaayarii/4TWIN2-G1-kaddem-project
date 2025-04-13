@@ -1,0 +1,33 @@
+<div class="page">
+  <div class="header">
+    <h2>Student Management</h2>
+    <p>Manage and view all students</p>
+    <a routerLink="/students/new" class="add-button">Add New Student</a>
+  </div>
+
+  <div class="loading" *ngIf="loading">Loading...</div>
+
+  <table *ngIf="!loading">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Option</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let student of students">
+        <td>{{student.idEtudiant}}</td>
+        <td>{{student.prenomE || '-'}}</td>
+        <td>{{student.nomE || '-'}}</td>
+        <td>{{student.op || 'N/A'}}</td>
+        <td class="actions">
+          <button class="edit-button" (click)="editStudent(student.idEtudiant!)" *ngIf="student.idEtudiant">Edit</button>
+          <button class="delete-button" (click)="deleteStudent(student.idEtudiant!)" *ngIf="student.idEtudiant">Delete</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
