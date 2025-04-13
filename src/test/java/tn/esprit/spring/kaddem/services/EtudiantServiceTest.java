@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class EtudiantServiceTest {
+class EtudiantServiceTest {
 
     @Mock
     private EtudiantRepository etudiantRepository;
@@ -38,7 +38,7 @@ public class EtudiantServiceTest {
     private EtudiantServiceImpl etudiantService;
 
     @Test
-    public void testRetrieveAllEtudiants() {
+    void testRetrieveAllEtudiants() {
         Etudiant e1 = new Etudiant("Ali", "Ben Ali");
         Etudiant e2 = new Etudiant("Samira", "Ben Mohamed");
         when(etudiantRepository.findAll()).thenReturn(Arrays.asList(e1, e2));
@@ -50,7 +50,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testAddEtudiant() {
+    void testAddEtudiant() {
         Etudiant e = new Etudiant("Doe", "Nouh");
         when(etudiantRepository.save(e)).thenReturn(e);
 
@@ -63,7 +63,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testRemoveEtudiant() {
+    void testRemoveEtudiant() {
         Integer id = 1;
         Etudiant e = new Etudiant("Test", "Delete");
         e.setIdEtudiant(id);
@@ -76,7 +76,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testUpdateEtudiant() {
+    void testUpdateEtudiant() {
         Etudiant e = new Etudiant("Old", "Name");
         e.setIdEtudiant(1);
         e.setNomE("New");
@@ -93,7 +93,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testRetrieveEtudiant() {
+    void testRetrieveEtudiant() {
         Integer id = 1;
         Etudiant e = new Etudiant("Test", "Student");
         e.setIdEtudiant(id);
@@ -108,7 +108,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testAssignEtudiantToDepartement() {
+    void testAssignEtudiantToDepartement() {
         Integer etudiantId = 1;
         Integer departementId = 1;
         
@@ -129,7 +129,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testAddAndAssignEtudiantToEquipeAndContract() {
+    void testAddAndAssignEtudiantToEquipeAndContract() {
         Integer contratId = 1;
         Integer equipeId = 1;
         Etudiant etudiant = new Etudiant("Test", "Student");
@@ -150,7 +150,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testGetEtudiantsByDepartement() {
+    void testGetEtudiantsByDepartement() {
         Integer departementId = 1;
         List<Etudiant> expectedStudents = Arrays.asList(
             new Etudiant("Student1", "Test1"),
@@ -168,7 +168,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testRetrieveEtudiantNotFound() {
+    void testRetrieveEtudiantNotFound() {
         Integer id = 999;
         when(etudiantRepository.findById(id)).thenReturn(Optional.empty());
         
@@ -178,7 +178,7 @@ public class EtudiantServiceTest {
     }
 
     @Test
-    public void testAssignEtudiantToDepartementWithInvalidIds() {
+    void testAssignEtudiantToDepartementWithInvalidIds() {
         Integer etudiantId = 999;
         Integer departementId = 999;
         
