@@ -38,6 +38,19 @@ services:
       - kaddem-net
       - devops_net
 
+  frontend:
+    build: 
+      context: ../frontend
+      dockerfile: Dockerfile
+    container_name: kaddem-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - app
+    networks:
+      - kaddem-net
+      - devops_net
+
 volumes:
   mysql_data:
 
