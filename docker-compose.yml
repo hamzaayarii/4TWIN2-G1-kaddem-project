@@ -23,7 +23,7 @@ services:
   frontend:
     image: nginx:latest
     ports:
-      - "80:80"
+      - "8080:80"
     networks:
       - app-network
   prometheus:
