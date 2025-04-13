@@ -88,19 +88,21 @@ pipeline {
             steps {
                 script {
                     // MySQL Container Management
-                    sh '''
+                    sh '''#!/bin/sh
                         echo "Checking MySQL container status..."
                         if ! docker ps -q --filter name=kaddem-mysql | grep -q .; then
                             echo "Starting MySQL container..."
                             docker compose up -d db
                             echo "Waiting for MySQL to be healthy..."
-                            for ((i=1; i<=6; i++)); do
+                            i=1
+                            while [ $i -le 6 ]; do
                                 if docker ps --filter name=kaddem-mysql --filter health=healthy -q | grep -q .; then
                                     echo "MySQL is healthy!"
                                     break
                                 fi
                                 echo "Waiting for MySQL to be ready... ($i/6)"
                                 sleep 3
+                                i=$((i + 1))
                             done
                         else
                             echo "MySQL container is already running"
@@ -108,12 +110,13 @@ pipeline {
                     '''
 
                     // Application Deployment
-                    sh '''
+                    sh '''#!/bin/sh
                         echo "Rebuilding and restarting application..."
                         docker compose up -d --build --no-deps app frontend
 
                         echo "Waiting for application to start..."
-                        for ((i=1; i<=8; i++)); do
+                        i=1
+                        while [ $i -le 8 ]; do
                             if docker ps --filter name=kaddem-app -q | grep -q . && \
                                curl -s http://localhost:8089/kaddem/actuator/health | grep -q '"status":"UP"'; then
                                 echo "Application is up and running!"
@@ -121,6 +124,7 @@ pipeline {
                             fi
                             echo "Waiting for application to start... ($i/8)"
                             sleep 3
+                            i=$((i + 1))
                         done
                     '''
                 }
