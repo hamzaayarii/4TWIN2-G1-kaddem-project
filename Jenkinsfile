@@ -115,26 +115,38 @@ pipeline {
                     
                     # Wait for health checks with optimized timing
                     echo "Waiting for containers to be healthy..."
-                    MAX_ATTEMPTS=8  # Reduced from 30 to 8 attempts
-                    SLEEP_DURATION=3  # Slightly increased from 2 to 3 seconds for better stability
+                    MAX_ATTEMPTS=8
+                    SLEEP_DURATION=3
                     
                     for i in $(seq 1 $MAX_ATTEMPTS); do
                         echo "Health check attempt $i/$MAX_ATTEMPTS..."
                         
-                        # Check if containers exist and are healthy
-                        if docker ps --format '{{.Names}} {{.Status}}' | grep -E 'kaddem-(app|mysql).*healthy' | wc -l | grep -q 2; then
-                            echo "✅ All containers are healthy!"
-                            echo "Current container status:"
-                            docker ps --format 'table {{.Names}}\t{{.Status}}'
-                            exit 0
+                        # Check MySQL health
+                        MYSQL_HEALTHY=$(docker ps --format '{{.Names}} {{.Status}}' | grep 'kaddem-mysql.*healthy' || true)
+                        # Check if Spring app is running and responding
+                        APP_RUNNING=$(docker ps --format '{{.Names}} {{.Status}}' | grep 'kaddem-app.*Up' || true)
+                        
+                        if [ ! -z "$MYSQL_HEALTHY" ] && [ ! -z "$APP_RUNNING" ]; then
+                            # Additional check: Try to access Spring actuator endpoint
+                            if curl -s "http://localhost:8089/kaddem/actuator/health" | grep -q "UP"; then
+                                echo "✅ All services are ready!"
+                                echo "Current container status:"
+                                docker ps --format 'table {{.Names}}\t{{.Status}}'
+                                exit 0
+                            fi
                         fi
                         
                         # If we're on the last attempt, show detailed status
                         if [ $i -eq $MAX_ATTEMPTS ]; then
-                            echo "❌ Timeout waiting for containers to be healthy"
+                            echo "❌ Timeout waiting for services to be ready"
                             echo "Current container status:"
                             docker ps --format 'table {{.Names}}\t{{.Status}}'
+                            echo "\nMySQL Status: $MYSQL_HEALTHY"
+                            echo "App Status: $APP_RUNNING"
+                            echo "\nDetailed logs:"
+                            echo "=== kaddem-app logs ==="
                             docker logs kaddem-app || true
+                            echo "\n=== kaddem-mysql logs ==="
                             docker logs kaddem-mysql || true
                             exit 1
                         fi
