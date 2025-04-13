@@ -9,7 +9,7 @@ pipeline {
      environment {
             DOCKERHUB_CREDENTIALS = credentials('dockerhub-credentials')
             DOCKER_USERNAME = "hamzabox"
-            BACKEND_IMAGE = "${DOCKER_USERNAME}/AyariHamza-4TWIN2-G1-kaddem-api"
+            BACKEND_IMAGE = "${DOCKER_USERNAME}/ayarihamza-4twin2-g1-kaddem-api"
             BACKEND_TAG = "${BUILD_NUMBER}"
             NEXUS_REPO = "http://192.168.33.10:8083/repository/maven-snapshots/"
         }
@@ -31,28 +31,18 @@ pipeline {
                     }
                 }
         */
-         stage('Maven Clean Compile') {
-                    steps {
-                        sh 'mvn clean'
-                        echo 'Running Maven Compile'
-                        sh 'mvn compile'
-                    }
-                }
+        stage('Maven Build & Install') {
+            steps {
+                echo 'Running full Maven build lifecycle'
+                sh 'mvn clean install'
+            }
+        }
                 stage('Tests - JUnit/Mockito') {
                     steps {
                         sh 'mvn test'
                     }
                 }
-                stage('Build package') {
-                    steps {
-                        sh 'mvn package'
-                    }
-                }
-                stage('Maven Install') {
-                    steps {
-                        sh 'mvn install'
-                    }
-                }
+
 
           stage("SonarQube Analysis") {
                     steps {
