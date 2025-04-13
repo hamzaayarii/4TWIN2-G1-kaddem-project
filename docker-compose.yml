@@ -33,7 +33,7 @@ services:
     container_name: kaddem-backend
 
   frontend:
-    image: hamzabox/ayarihamza-g1-kaddem-frontend:6
+    image: hamzabox/ayarihamza-g1-kaddem-frontend:11
     container_name: kaddem-frontend
     ports:
       - 4200:80
@@ -41,6 +41,17 @@ services:
       - backend
     networks:
       - kaddem_network
+    user: root
+
+  json-server:
+    build:
+      context: ./json-server
+    container_name: json-server
+    ports:
+      - "3000:3000"
+    networks:
+      - kaddem_network
+    restart: unless-stopped
 
 volumes:
   db:

@@ -63,20 +63,20 @@ pipeline {
                        }
                     }
                 }
-/*
+
         stage('Deploy JAR to Nexus') {
                     steps {
-                        dir('backend') {
+
                             sh "mvn deploy -DaltDeploymentRepository=deploymentRepo::default::${NEXUS_REPO}"
-                        }
+
                     }
                 }
 
        stage('Build Docker Image') {
                    steps {
-                       dir('backend') {
+
                            sh "docker build -t ${BACKEND_IMAGE}:${BACKEND_TAG} ."
-                       }
+
                    }
                }
  stage('Push Docker Image to DockerHub') {
@@ -88,7 +88,7 @@ pipeline {
                 }
             }
         }
-        */
+
     }
 
     post {
