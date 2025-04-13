@@ -52,7 +52,18 @@ pipeline {
         // Stage 5: Docker Login
         stage('Docker Login') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh '''
+                    # Clean up any stale networks first
+                    echo "Cleaning up Docker networks..."
+                    docker network prune -f
+                    
+                    # Create our network if it doesn't exist
+                    docker network create devops_net || true
+                    
+                    # Try Docker login
+                    echo "Attempting Docker login..."
+                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                '''
             }
         }
         // Stage 6: Docker Build
@@ -74,29 +85,39 @@ pipeline {
             steps {
                 sh '''
                     # Stop any existing containers with our app name pattern
+                    echo "Stopping existing containers..."
                     docker ps -q --filter name=kaddem | xargs -r docker stop || true
                     docker ps -aq --filter name=kaddem | xargs -r docker rm -f || true
                     
                     # Remove old images to prevent 'image in use' errors
+                    echo "Cleaning up old images..."
                     docker images | grep 'kaddem' | awk '{print $3}' | xargs -r docker rmi -f || true
                     
-                    # Remove orphaned volumes and networks
-                    docker volume prune -f
+                    # Careful network cleanup
+                    echo "Cleaning up Docker networks..."
+                    docker network ls | grep "kaddem" | awk '{print $1}' | xargs -r docker network rm || true
                     docker network prune -f
                     
+                    # Recreate network if needed
+                    docker network create kaddem-network || true
+                    
+                    # Remove orphaned volumes
+                    echo "Cleaning up volumes..."
+                    docker volume prune -f
+                    
                     # Small delay to ensure cleanup completes
+                    echo "Waiting for cleanup to complete..."
                     sleep 5
                     
-                    # Pull latest images
-                    docker compose pull || true
-                    
                     # Start fresh with new configuration
+                    echo "Starting new containers..."
                     docker compose up -d --force-recreate --remove-orphans
                     
                     # Wait for health checks
                     echo "Waiting for containers to be healthy..."
                     for i in $(seq 1 30); do
                         if docker ps | grep -q "kaddem-app" && docker ps | grep -q "kaddem-mysql"; then
+                            echo "Containers are running, checking health..."
                             if docker ps | grep "kaddem-app" | grep -q "healthy" && docker ps | grep "kaddem-mysql" | grep -q "healthy"; then
                                 echo "All containers are healthy!"
                                 exit 0
@@ -109,9 +130,11 @@ pipeline {
                     # Check final status
                     if ! docker ps | grep -q "kaddem-app" || ! docker ps | grep -q "kaddem-mysql"; then
                         echo "Container startup failed"
+                        echo "Current containers:"
                         docker ps -a
-                        docker logs kaddem-app
-                        docker logs kaddem-mysql
+                        echo "Container logs:"
+                        docker logs kaddem-app || true
+                        docker logs kaddem-mysql || true
                         exit 1
                     fi
                     
