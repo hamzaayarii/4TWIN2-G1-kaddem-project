@@ -20,12 +20,6 @@ services:
       - mysql-data:/var/lib/mysql
     networks:
       - app-network
-  frontend:
-    image: nginx:latest
-    ports:
-      - "8080:80"
-    networks:
-      - app-network
   prometheus:
     image: prom/prometheus:latest
     volumes:
