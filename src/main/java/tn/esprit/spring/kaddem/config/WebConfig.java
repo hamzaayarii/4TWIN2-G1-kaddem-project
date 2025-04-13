@@ -11,21 +11,43 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
 
+    private static final String[] ALLOWED_ORIGINS = {
+        "http://localhost:80",
+        "http://localhost:4200",
+        "http://localhost"
+    };
+
+    private static final String[] ALLOWED_METHODS = {
+        "GET", "POST", "PUT", "DELETE", "OPTIONS"
+    };
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                .allowedOriginPatterns("*")
-                .allowedMethods("*")
-                .allowedHeaders("*");
+                .allowedOrigins(ALLOWED_ORIGINS)
+                .allowedMethods(ALLOWED_METHODS)
+                .allowedHeaders("*")
+                .maxAge(3600);
     }
 
     @Bean
     public CorsFilter corsFilter() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("*");
+        
+        // Add allowed origins explicitly
+        for (String origin : ALLOWED_ORIGINS) {
+            config.addAllowedOrigin(origin);
+        }
+        
+        // Add allowed methods explicitly
+        for (String method : ALLOWED_METHODS) {
+            config.addAllowedMethod(method);
+        }
+        
         config.addAllowedHeader("*");
-        config.addAllowedMethod("*");
+        config.setMaxAge(3600L);
+        
         source.registerCorsConfiguration("/**", config);
         return new CorsFilter(source);
     }

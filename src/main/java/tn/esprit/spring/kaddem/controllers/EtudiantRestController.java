@@ -11,7 +11,11 @@ import java.util.List;
 @RestController
 @AllArgsConstructor
 @RequestMapping("/etudiant")
-@CrossOrigin(origins = "*", allowedHeaders = "*", methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
+@CrossOrigin(
+	origins = {"http://localhost:80", "http://localhost:4200", "http://localhost"},
+	allowedHeaders = {"Authorization", "Content-Type"},
+	methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS}
+)
 public class EtudiantRestController {
 	@Autowired
 	IEtudiantService etudiantService;
