@@ -5,7 +5,7 @@ services:
     image: mysql:8.0
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword   # optional, for root access
+      - MYSQL_ROOT_PASSWORD=rootpassword
       - MYSQL_DATABASE=kaddem_db
       - MYSQL_USER=kaddem
       - MYSQL_PASSWORD=kaddem
