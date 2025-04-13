@@ -56,12 +56,12 @@ pipeline {
             }
         }
 
-        stage('Cleanup') {
+        /*stage('Cleanup') {
             steps {
                 sh 'docker-compose down'
                 sh 'docker system prune -f'
             }
-        }
+        }*/
     }
 
     post {
