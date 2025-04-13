@@ -1,13 +1,13 @@
 version: '3.8'
 services:
   spring-app:
-    image: oussamakaddech-G1-4TWIN2/kaddem-spring:${BUILD_NUMBER}
+    image: oussamakaddech4TWIN2/kaddem-project:${TAG}
     ports:
       - "8089:8089"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/kaddem?createDatabaseIfNotExist=true
       - SPRING_DATASOURCE_USERNAME=root
-      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_DATASOURCE_PASSWORD=securepassword
     depends_on:
       - mysql
     networks:
@@ -15,7 +15,7 @@ services:
   mysql:
     image: mysql:8.0
     environment:
-      - MYSQL_ROOT_PASSWORD=
+      - MYSQL_ROOT_PASSWORD=securepassword
       - MYSQL_DATABASE=kaddem
     volumes:
       - mysql-data:/var/lib/mysql
