@@ -9,6 +9,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class WebConfigTest {
 
+    private static final String[] EXPECTED_ORIGINS = {
+        "http://localhost:80",
+        "http://localhost:4200",
+        "http://localhost"
+    };
+
+    private static final String[] EXPECTED_METHODS = {
+        "GET", "POST", "PUT", "DELETE", "OPTIONS"
+    };
+
     @Test
     void testAddCorsMappings() {
         // Arrange
@@ -17,18 +27,20 @@ class WebConfigTest {
         CorsRegistration corsRegistration = mock(CorsRegistration.class);
         
         when(registry.addMapping("/**")).thenReturn(corsRegistration);
-        when(corsRegistration.allowedOriginPatterns("*")).thenReturn(corsRegistration);
-        when(corsRegistration.allowedMethods("*")).thenReturn(corsRegistration);
+        when(corsRegistration.allowedOrigins(EXPECTED_ORIGINS)).thenReturn(corsRegistration);
+        when(corsRegistration.allowedMethods(EXPECTED_METHODS)).thenReturn(corsRegistration);
         when(corsRegistration.allowedHeaders("*")).thenReturn(corsRegistration);
+        when(corsRegistration.maxAge(3600)).thenReturn(corsRegistration);
 
         // Act
         webConfig.addCorsMappings(registry);
 
         // Assert
         verify(registry).addMapping("/**");
-        verify(corsRegistration).allowedOriginPatterns("*");
-        verify(corsRegistration).allowedMethods("*");
+        verify(corsRegistration).allowedOrigins(EXPECTED_ORIGINS);
+        verify(corsRegistration).allowedMethods(EXPECTED_METHODS);
         verify(corsRegistration).allowedHeaders("*");
+        verify(corsRegistration).maxAge(3600);
     }
 
     @Test
