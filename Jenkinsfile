@@ -113,33 +113,35 @@ pipeline {
                     echo "Starting new containers..."
                     docker compose up -d --force-recreate --remove-orphans
                     
-                    # Wait for health checks
+                    # Wait for health checks with optimized timing
                     echo "Waiting for containers to be healthy..."
-                    for i in $(seq 1 30); do
-                        if docker ps | grep -q "kaddem-app" && docker ps | grep -q "kaddem-mysql"; then
-                            echo "Containers are running, checking health..."
-                            if docker ps | grep "kaddem-app" | grep -q "healthy" && docker ps | grep "kaddem-mysql" | grep -q "healthy"; then
-                                echo "All containers are healthy!"
-                                exit 0
-                            fi
+                    MAX_ATTEMPTS=8  # Reduced from 30 to 8 attempts
+                    SLEEP_DURATION=3  # Slightly increased from 2 to 3 seconds for better stability
+                    
+                    for i in $(seq 1 $MAX_ATTEMPTS); do
+                        echo "Health check attempt $i/$MAX_ATTEMPTS..."
+                        
+                        # Check if containers exist and are healthy
+                        if docker ps --format '{{.Names}} {{.Status}}' | grep -E 'kaddem-(app|mysql).*healthy' | wc -l | grep -q 2; then
+                            echo "✅ All containers are healthy!"
+                            echo "Current container status:"
+                            docker ps --format 'table {{.Names}}\t{{.Status}}'
+                            exit 0
                         fi
-                        echo "Waiting for containers to be healthy... ($i/30)"
-                        sleep 2
+                        
+                        # If we're on the last attempt, show detailed status
+                        if [ $i -eq $MAX_ATTEMPTS ]; then
+                            echo "❌ Timeout waiting for containers to be healthy"
+                            echo "Current container status:"
+                            docker ps --format 'table {{.Names}}\t{{.Status}}'
+                            docker logs kaddem-app || true
+                            docker logs kaddem-mysql || true
+                            exit 1
+                        fi
+                        
+                        echo "Waiting ${SLEEP_DURATION} seconds before next check..."
+                        sleep $SLEEP_DURATION
                     done
-                    
-                    # Check final status
-                    if ! docker ps | grep -q "kaddem-app" || ! docker ps | grep -q "kaddem-mysql"; then
-                        echo "Container startup failed"
-                        echo "Current containers:"
-                        docker ps -a
-                        echo "Container logs:"
-                        docker logs kaddem-app || true
-                        docker logs kaddem-mysql || true
-                        exit 1
-                    fi
-                    
-                    echo "Deployment successful!"
-                    echo "Application is running at: ${APP_URL}"
                 '''
             }
         }
