@@ -83,64 +83,52 @@ pipeline {
         // Stage 8: Deploy
         stage('Deploy with Docker Compose') {
             steps {
-                sh '''
-                    # Stop any existing containers with our app name pattern
-                    echo "Stopping existing containers..."
-                    docker ps -q --filter name=kaddem | xargs -r docker stop || true
-                    docker ps -aq --filter name=kaddem | xargs -r docker rm -f || true
-                    
-                    # Remove old images to prevent 'image in use' errors
-                    echo "Cleaning up old images..."
-                    docker images | grep 'kaddem' | awk '{print $3}' | xargs -r docker rmi -f || true
-                    
-                    # Careful network cleanup
-                    echo "Cleaning up Docker networks..."
-                    docker network ls | grep "kaddem" | awk '{print $1}' | xargs -r docker network rm || true
-                    docker network prune -f
-                    
-                    # Recreate network if needed
-                    docker network create kaddem-network || true
-                    
-                    # Remove orphaned volumes
-                    echo "Cleaning up volumes..."
-                    docker volume prune -f
-                    
-                    # Small delay to ensure cleanup completes
-                    echo "Waiting for cleanup to complete..."
-                    sleep 5
-                    
-                    # Start fresh with new configuration
-                    echo "Starting new containers..."
-                    docker compose up -d --force-recreate --remove-orphans
-                    
-                    # Wait for health checks
-                    echo "Waiting for containers to be healthy..."
-                    for i in $(seq 1 30); do
-                        if docker ps | grep -q "kaddem-app" && docker ps | grep -q "kaddem-mysql"; then
-                            echo "Containers are running, checking health..."
-                            if docker ps | grep "kaddem-app" | grep -q "healthy" && docker ps | grep "kaddem-mysql" | grep -q "healthy"; then
-                                echo "All containers are healthy!"
-                                exit 0
-                            fi
+                script {
+                    // Check if MySQL is running and healthy
+                    sh '''
+                        echo "Checking MySQL container status..."
+                        if docker ps -q --filter name=kaddem-mysql | grep -q .; then
+                            echo "MySQL container is already running"
+                        else
+                            echo "Starting MySQL container..."
+                            docker compose up -d db
+                            echo "Waiting for MySQL to be healthy..."
+                            attempt=1
+                            # MySQL typically needs 5-10 seconds to start
+                            while [ $attempt -le 10 ]; do
+                                if docker ps --filter name=kaddem-mysql --filter health=healthy -q | grep -q .; then
+                                    echo "MySQL is healthy!"
+                                    break
+                                fi
+                                echo "Waiting for MySQL to be ready... ($attempt/10)"
+                                sleep 2
+                                attempt=$((attempt + 1))
+                            done
                         fi
-                        echo "Waiting for containers to be healthy... ($i/30)"
-                        sleep 2
-                    done
-                    
-                    # Check final status
-                    if ! docker ps | grep -q "kaddem-app" || ! docker ps | grep -q "kaddem-mysql"; then
-                        echo "Container startup failed"
-                        echo "Current containers:"
-                        docker ps -a
-                        echo "Container logs:"
-                        docker logs kaddem-app || true
-                        docker logs kaddem-mysql || true
-                        exit 1
-                    fi
-                    
-                    echo "Deployment successful!"
-                    echo "Application is running at: ${APP_URL}"
-                '''
+                    '''
+
+                    // Only rebuild and restart the application container
+                    sh '''
+                        echo "Rebuilding and restarting application..."
+                        docker compose up -d --build --no-deps app frontend
+                        
+                        echo "Waiting for application to start..."
+                        attempt=1
+                        # Spring Boot typically starts in 10-15 seconds
+                        while [ $attempt -le 12 ]; do
+                            if docker ps --filter name=kaddem-app -q | grep -q .; then
+                                # Add a quick check for Spring Boot readiness
+                                if curl -s http://localhost:8089/kaddem/actuator/health | grep -q '"status":"UP"'; then
+                                    echo "Application is up and healthy!"
+                                    break
+                                fi
+                            fi
+                            echo "Waiting for application to start... ($attempt/12)"
+                            sleep 3
+                            attempt=$((attempt + 1))
+                        done
+                    '''
+                }
             }
         }
     }
@@ -176,10 +164,11 @@ pipeline {
                     |Check details at: ${env.BUILD_URL}
                     """.stripMargin()
             )
-            // Only clean up containers on failure
+            // Don't remove everything on failure, just stop the app containers
             sh '''
-                docker compose down --rmi all --volumes --remove-orphans || true
-                docker ps -aq --filter name=kaddem | xargs -r docker rm -f || true
+                echo "Stopping application containers..."
+                docker compose stop app frontend || true
+                docker compose rm -f app frontend || true
             '''
         }
         always {
