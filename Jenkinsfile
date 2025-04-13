@@ -1,11 +1,16 @@
 pipeline {
     agent any
+    triggers {
+        githubPush()
+    }
     tools {
         maven 'Maven-3.9.3'
     }
     environment {
         DOCKER_IMAGE = "lazztn/lazzezmohamedamine-4twin2-g1-kaddem"
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+        APP_URL = "http://localhost:8089"
+        JENKINS_URL = "http://localhost:8080"
     }
     stages {
         // Stage 1: Build
@@ -94,7 +99,7 @@ pipeline {
                     fi
                     
                     echo "Deployment successful - Application is running!"
-                    echo "You can access the application at: http://localhost:8089"
+                    echo "You can access the application at: ${APP_URL}"
                 '''
             }
         }
@@ -111,7 +116,8 @@ pipeline {
                     |Build: ${env.BUILD_NUMBER}
                     |Duration: ${currentBuild.durationString}
                     |
-                    |Application is running at: http://localhost:8089
+                    |Application is running at: ${APP_URL}
+                    |Jenkins is accessible at: ${JENKINS_URL}
                     |
                     |Check details at: ${env.BUILD_URL}
                     """.stripMargin()
