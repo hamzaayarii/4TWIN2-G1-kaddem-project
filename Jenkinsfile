@@ -83,7 +83,7 @@ pipeline {
         // Stage 8: Deploy
         stage('Deploy with Docker Compose') {
             tools {
-                maven 'M2_HOME'
+                maven 'Maven-3.9.3'
             }
             steps {
                 script {
