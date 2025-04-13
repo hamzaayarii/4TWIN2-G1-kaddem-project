@@ -1,6 +1,6 @@
 services:
   spring-app:
-    image: oussamakaddech4TWIN2/kaddem-project:${TAG}
+    image: oussamakaddech/kaddem-project:${TAG}
     ports:
       - "8089:8089"
     environment:
