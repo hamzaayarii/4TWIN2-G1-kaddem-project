@@ -18,6 +18,7 @@ services:
       retries: 10
     networks:
       - kaddem-net
+      - devops_net
 
   app:
     build: .  # Utilise le Dockerfile local pour builder l'image
@@ -35,6 +36,7 @@ services:
       - "8089:8089"
     networks:
       - kaddem-net
+      - devops_net
 
 volumes:
   mysql_data:
@@ -42,3 +44,6 @@ volumes:
 networks:
   kaddem-net:
     driver: bridge
+  devops_net:
+    external: true
+    name: devops_net
