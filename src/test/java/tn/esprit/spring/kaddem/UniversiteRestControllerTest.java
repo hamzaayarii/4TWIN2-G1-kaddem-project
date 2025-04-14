@@ -82,7 +82,7 @@ class UniversiteRestControllerTest {
     @Test
     void testAddUniversite() {
         // Mock data
-        UniversiteDTO universiteDTO = new UniversiteDTO();
+        Universite universiteDTO = new Universite();
         universiteDTO.setNomUniv("Universite1");
 
         // Mocking behavior
@@ -103,7 +103,7 @@ class UniversiteRestControllerTest {
     @Test
     void testUpdateUniversite() {
         // Mock data
-        UniversiteDTO universiteDTO = new UniversiteDTO();
+        Universite universiteDTO = new Universite();
         universiteDTO.setNomUniv("Universite1");
 
         // Mocking behavior
