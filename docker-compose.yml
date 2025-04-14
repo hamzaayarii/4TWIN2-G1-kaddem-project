@@ -2,45 +2,82 @@ version: "3.8"
 
 services:
   mysqldb:
-    image: mysql:5.7
+    image: mysql:8.0
     restart: unless-stopped
     environment:
-      - MYSQL_ROOT_PASSWORD=
-      - MYSQL_DATABASE=kaddem_db
+      - MYSQL_ROOT_PASSWORD=root  # This is the root password for MySQL
+      - MYSQL_DATABASE=kaddem
     ports:
       - 3306:3306
     volumes:
       - db:/var/lib/mysql
     networks:
       - kaddem_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     depends_on:
       - mysqldb
-    image: hamzabox/kaddem-devops:${BACKEND_IMAGE_TAG:-latest}
+    image: hamzabox/ayarihamza-4twin2-g1-kaddem-api:${BACKEND_TAG:-1}
+    #image: hamzabox/ayarihamza-g1-kaddem-backend:1
     # build: ./backend  # Uncomment if you want to build the backend locally
     restart: on-failure
     ports:
-      - 8082:8082
+      - 8082:8089
     environment:
-      SPRING_APPLICATION_JSON: '{
-              "spring.datasource.url"  : "jdbc:mysql://mysqldb:3306/kaddem_db?createDatabaseIfNotExist=true",
-              "spring.datasource.username" : "root",
-              "spring.datasource.password" : null,
-              "spring.jpa.properties.hibernate.dialect" : "org.hibernate.dialect.MySQL5InnoDBDialect",
-              "spring.jpa.hibernate.ddl-auto" : "update"
-            }'
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/kaddem?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&max_allowed_packet=15728640
+      - SPRING_DATASOURCE_USERNAME=root
+      - SPRING_DATASOURCE_PASSWORD=root
     stdin_open: true
     tty: true
     networks:
       - kaddem_network
+    container_name: kaddem-backend
 
   frontend:
-    image: hamzabox/kaddem-frontend:${FRONTEND_IMAGE_TAG:-latest}
+    image: hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${FRONTEND_TAG:-1}
+    #image: hamzabox/ayarihamza-g1-kaddem-front:1
+    container_name: kaddem-frontend
     ports:
-      - 80:80
+      - 4200:80
+    environment:
+      - API_URL=http://kaddem-backend:8089
     depends_on:
       - backend
+    networks:
+      - kaddem_network
+    user: root
+
+  json-server:
+    build:
+      context: ./json-server
+    container_name: json-server
+    ports:
+      - "3001:3000"
+    networks:
+      - kaddem_network
+    restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kaddem_network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
     networks:
       - kaddem_network
 

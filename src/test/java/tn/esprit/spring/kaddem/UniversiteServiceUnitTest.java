@@ -72,7 +72,7 @@ class UniversiteServiceUnitTest {
         ArgumentCaptor<Universite> universiteArgumentCaptor = ArgumentCaptor.forClass(Universite.class);
         verify(universiteRepository).save(universiteArgumentCaptor.capture());
         Universite universiteCreated = universiteArgumentCaptor.getValue();
-        assertNotNull(universiteCreated.getIdUniv());
+        assertNotNull(universiteCreated.getIdUniversite());
         assertEquals("john", universiteCreated.getNomUniv());
     }
 
@@ -80,7 +80,7 @@ class UniversiteServiceUnitTest {
     void testDeleteuniversite() {
         Universite universite = new Universite(13, "simen");
         when(universiteRepository.findById(13)).thenReturn(Optional.of(universite));
-        iUniversiteService.deleteUniversite(universite.getIdUniv());
+        iUniversiteService.deleteUniversite(universite.getIdUniversite());
         // Verify that the delete method is called with the correct argument
         verify(universiteRepository, times(1)).delete(universite);
         // Optional: You can also use ArgumentCaptor to capture the deleted entity and make additional assertions
@@ -88,6 +88,6 @@ class UniversiteServiceUnitTest {
         verify(universiteRepository).delete(universiteArgumentCaptor.capture());
         Universite deletedUniversite = universiteArgumentCaptor.getValue();
         assertNotNull(deletedUniversite);
-        assertEquals(13, deletedUniversite.getIdUniv());
+        assertEquals(13, deletedUniversite.getIdUniversite());
     }
 }

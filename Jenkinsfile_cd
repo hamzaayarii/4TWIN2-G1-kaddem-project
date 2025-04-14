@@ -1,0 +1,50 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'BACKEND_TAG', defaultValue: '1', description: 'Backend Docker image tag')
+        string(name: 'FRONTEND_TAG', defaultValue: '1', description: 'Frontend Docker image tag')
+    }
+
+    environment {
+        BACKEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-api:${params.BACKEND_TAG}"
+        FRONTEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${params.FRONTEND_TAG}"
+    }
+
+    stages {
+        stage('Clean Up') {
+            steps {
+                echo 'Cleaning up previous containers and images...'
+                sh 'docker-compose down --remove-orphans'
+
+                // Add the volume removal command
+                sh '''
+                    # Remove the specific volume
+                    docker volume rm kaddem-back_db || true
+                '''
+            }
+        }
+
+        stage('Pull Docker Images') {
+            steps {
+                echo "Pulling backend and frontend images from Docker Hub..."
+                sh "docker pull ${BACKEND_IMAGE}"
+                sh "docker pull ${FRONTEND_IMAGE}"
+            }
+        }
+
+        stage('Start Services with Docker Compose') {
+            steps {
+                echo "Starting backend, frontend, and database using Docker Compose..."
+                sh 'docker-compose up -d'
+            }
+        }
+
+        stage('Check Running Services') {
+            steps {
+                echo "Checking if all services are running..."
+                sh 'docker ps'
+            }
+        }
+    }
+}
