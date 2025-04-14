@@ -35,7 +35,7 @@ services:
 
   frontend:
     image: hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${FRONTEND_TAG:-1}
-    #image: hamzabox/ayarihamza-g1-kaddem-frontend:1
+    #image: hamzabox/ayarihamza-g1-kaddem-front:1
     container_name: kaddem-frontend
     ports:
       - 4200:80
