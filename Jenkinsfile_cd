@@ -10,13 +10,15 @@ pipeline {
         BACKEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-api:${params.BACKEND_TAG}"
         FRONTEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${params.FRONTEND_TAG}"
     }
-stage('Clean Up') {
-  steps {
-    echo 'Cleaning up previous containers and images...'
-    sh 'docker-compose down --remove-orphans'
-  }
-}
+
     stages {
+        stage('Clean Up') {
+            steps {
+                echo 'Cleaning up previous containers and images...'
+                sh 'docker-compose down --remove-orphans'
+            }
+        }
+
         stage('Pull Docker Images') {
             steps {
                 echo "Pulling backend and frontend images from Docker Hub..."
