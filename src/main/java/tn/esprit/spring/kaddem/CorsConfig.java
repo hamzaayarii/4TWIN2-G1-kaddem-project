@@ -13,24 +13,20 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
 
-        // Allow all origins (you might want to restrict this in production)
-        corsConfig.addAllowedOrigin("http://localhost:4200/");
+        corsConfig.addAllowedOrigin("http://192.168.33.10:4200"); // 
+        corsConfig.setAllowCredentials(true); // ✅ Required if using cookies/auth
 
-        // Allow specific HTTP methods
         corsConfig.addAllowedMethod("GET");
         corsConfig.addAllowedMethod("POST");
         corsConfig.addAllowedMethod("PUT");
         corsConfig.addAllowedMethod("DELETE");
+        corsConfig.addAllowedMethod("OPTIONS"); // ✅ Also allow preflight requests
 
-        // Allow all headers
         corsConfig.addAllowedHeader("*");
 
-        // Set the maximum age of the preflight request in seconds
-        corsConfig.setMaxAge(3600L); // 1 hour
+        corsConfig.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-
-        // Apply the CORS configuration to all paths
         source.registerCorsConfiguration("/**", corsConfig);
 
         return new CorsFilter(source);
