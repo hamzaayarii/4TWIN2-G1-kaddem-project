@@ -36,9 +36,15 @@ public class UniversiteRestController {
 	// POST
 	@PostMapping
 	public ResponseEntity<Universite> addUniversite(@RequestBody Universite universite) {
-		Universite addedUniversite = universiteService.addUniversite(universite);
-		return new ResponseEntity<>(addedUniversite, HttpStatus.CREATED);
+		try {
+			Universite addedUniversite = universiteService.addUniversite(universite);
+			return new ResponseEntity<>(addedUniversite, HttpStatus.CREATED);
+		} catch (Exception e) {
+			e.printStackTrace(); // This will print the actual cause in the console
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+		}
 	}
+
 
 	// PUT
 	@PutMapping("/{id}")

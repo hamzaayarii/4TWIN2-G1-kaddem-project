@@ -11,6 +11,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(name = "universite")
 public class Universite implements Serializable {
 
     private static final long serialVersionUID = 1L;
