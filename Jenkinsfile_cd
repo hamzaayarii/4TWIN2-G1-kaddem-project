@@ -57,7 +57,10 @@ pipeline {
         stage('Start Services with Docker Compose') {
             steps {
                 echo "Starting backend, frontend, and database using Docker Compose..."
-                sh 'BACKEND_TAG=${params.BACKEND_TAG} FRONTEND_TAG=${params.FRONTEND_TAG} docker-compose up -d'
+                // Use double quotes for variable expansion
+                sh """
+                    BACKEND_TAG=${params.BACKEND_TAG} FRONTEND_TAG=${params.FRONTEND_TAG} docker-compose up -d
+                """
             }
         }
 
