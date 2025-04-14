@@ -141,16 +141,14 @@ Pour plus de détails, consultez les logs: ${BUILD_URL}console
                     mail(
                         to: 'hamzosayari07@gmail.com',
                         subject: "✅ DÉPLOIEMENT RÉUSSI: Kaddem Pipeline - ${DEPLOY_TIMESTAMP}",
-                       body: """🚀 Déploiement terminé avec succès 🚀
+                        body: """🚀 Déploiement terminé avec succès 🚀
 
 📋 Résumé du déploiement:
 --------------------------
 🔹 Statut: SUCCÈS
-🔹 Date/Heure: ${"${DEPLOY_TIMESTAMP}"}
-🔹 Backend: ${"${BACKEND_IMAGE}"}
-🔹 Frontend: ${"${FRONTEND_IMAGE}"}
-...
-"""
+🔹 Date/Heure: ${DEPLOY_TIMESTAMP}
+🔹 Backend: ${BACKEND_IMAGE}
+🔹 Frontend: ${FRONTEND_IMAGE}
 
 🌐 Accès aux applications:
 --------------------------
@@ -163,7 +161,7 @@ Pour plus de détails, consultez les logs: ${BUILD_URL}console
 📊 Statistiques:
 --------------------------
 Images Docker utilisées: 5
-Conteneurs démarrés: $(sh(script: 'docker ps | grep kaddem | wc -l', returnStdout: true).trim())
+Conteneurs démarrés: ${sh(script: 'docker ps | grep kaddem | wc -l', returnStdout: true).trim()}
 
 Pour plus de détails, consultez les logs: ${BUILD_URL}console
 """
