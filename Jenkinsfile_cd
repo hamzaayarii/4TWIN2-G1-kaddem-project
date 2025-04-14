@@ -7,8 +7,8 @@ pipeline {
     }
 
     environment {
-        BACKEND_IMAGE = "hamzabox/AyariHamza-4TWIN2-G1-kaddem-api:${params.BACKEND_TAG}"
-        FRONTEND_IMAGE = "hamzabox/AyariHamza-4TWIN2-G1-kaddem-frontend:${params.FRONTEND_TAG}"
+        BACKEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-api:${params.BACKEND_TAG}"
+        FRONTEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${params.FRONTEND_TAG}"
     }
 
     stages {
