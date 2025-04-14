@@ -1,49 +1,218 @@
 pipeline {
     agent any
-
     parameters {
         string(name: 'BACKEND_TAG', defaultValue: '1', description: 'Backend Docker image tag')
         string(name: 'FRONTEND_TAG', defaultValue: '1', description: 'Frontend Docker image tag')
     }
-
     environment {
         BACKEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-api:${params.BACKEND_TAG}"
         FRONTEND_IMAGE = "hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${params.FRONTEND_TAG}"
+        DEPLOY_STATUS = "SUCCESS"
+        ERROR_MESSAGE = ""
+        DEPLOY_TIMESTAMP = new Date().format("dd/MM/yyyy HH:mm:ss")
     }
-
     stages {
         stage('Clean Up') {
             steps {
-                echo 'Cleaning up previous containers and images...'
-                sh 'docker-compose down --remove-orphans'
-
-                // Add the volume removal command
-                sh '''
-                    # Remove the specific volume
-                    docker volume rm kaddem-back_db || true
-                '''
+                script {
+                    try {
+                        echo 'Cleaning up previous containers and images...'
+                        sh 'docker-compose down --remove-orphans'
+                        sh '''
+                            # Remove the specific volume
+                            docker volume rm kaddem-back_db || true
+                        '''
+                    } catch (Exception e) {
+                        env.DEPLOY_STATUS = "FAILED"
+                        env.ERROR_MESSAGE = "Échec lors du nettoyage: ${e.message}"
+                        error env.ERROR_MESSAGE
+                    }
+                }
             }
         }
-
         stage('Pull Docker Images') {
             steps {
-                echo "Pulling backend and frontend images from Docker Hub..."
-                sh "docker pull ${BACKEND_IMAGE}"
-                sh "docker pull ${FRONTEND_IMAGE}"
+                script {
+                    try {
+                        echo "Pulling backend and frontend images from Docker Hub..."
+                        sh "docker pull ${BACKEND_IMAGE}"
+                        sh "docker pull ${FRONTEND_IMAGE}"
+                    } catch (Exception e) {
+                        env.DEPLOY_STATUS = "FAILED"
+                        env.ERROR_MESSAGE = "Échec lors du téléchargement des images Docker: ${e.message}"
+                        error env.ERROR_MESSAGE
+                    }
+                }
             }
         }
-
         stage('Start Services with Docker Compose') {
             steps {
-                echo "Starting backend, frontend, and database using Docker Compose..."
-                sh 'docker-compose up -d'
+                script {
+                    try {
+                        echo "Starting backend, frontend, and database using Docker Compose..."
+                        sh 'docker-compose up -d'
+                    } catch (Exception e) {
+                        env.DEPLOY_STATUS = "FAILED"
+                        env.ERROR_MESSAGE = "Échec lors du démarrage des services: ${e.message}"
+                        error env.ERROR_MESSAGE
+                    }
+                }
             }
         }
-
         stage('Check Running Services') {
             steps {
-                echo "Checking if all services are running..."
-                sh 'docker ps'
+                script {
+                    try {
+                        echo "Checking if all services are running..."
+                        sh 'docker ps'
+                        
+                        // Vérifier que tous les conteneurs sont en cours d'exécution
+                        def runningContainers = sh(script: 'docker ps | grep -E "kaddem|mysqldb|json-server" | wc -l', returnStdout: true).trim()
+                        if (runningContainers.toInteger() < 3) {
+                            env.DEPLOY_STATUS = "WARNING"
+                            env.ERROR_MESSAGE = "Certains conteneurs ne semblent pas s'être lancés correctement"
+                        }
+                    } catch (Exception e) {
+                        env.DEPLOY_STATUS = "FAILED"
+                        env.ERROR_MESSAGE = "Échec lors de la vérification des services: ${e.message}"
+                        error env.ERROR_MESSAGE
+                    }
+                }
+            }
+        }
+        stage('Verify Connectivity') {
+            steps {
+                script {
+                    try {
+                        echo "Vérifie la connexion aux services..."
+                        
+                        // Tentative de connexion au backend (vérification simple)
+                        sh '''
+                            # Attendez que le service backend soit prêt
+                            for i in $(seq 1 30); do
+                                curl -s http://localhost:8082/actuator/health && break
+                                echo "Attente du démarrage du backend... ($i/30)"
+                                sleep 3
+                            done
+                        '''
+                        
+                        // Tentative de connexion au frontend
+                        sh '''
+                            curl -s -o /dev/null -w "%{http_code}" http://localhost:4200 | grep -q "200" || echo "Frontend peut ne pas être prêt"
+                        '''
+                    } catch (Exception e) {
+                        env.DEPLOY_STATUS = "WARNING"
+                        env.ERROR_MESSAGE = "Services démarrés mais la vérification de connectivité a échoué: ${e.message}"
+                    }
+                }
+            }
+        }
+    }
+    
+    post {
+        success {
+            script {
+                if (env.DEPLOY_STATUS == "WARNING") {
+                    mail(
+                        to: 'hamzosayari07@gmail.com',
+                        subject: "⚠️ DÉPLOIEMENT AVEC AVERTISSEMENTS: Kaddem Pipeline - ${DEPLOY_TIMESTAMP}",
+                        body: """🚀 Déploiement terminé avec avertissements 🚀
+
+📋 Résumé du déploiement:
+--------------------------
+🔹 Statut: TERMINÉ AVEC AVERTISSEMENTS
+🔹 Date/Heure: ${DEPLOY_TIMESTAMP}
+🔹 Backend: ${BACKEND_IMAGE}
+🔹 Frontend: ${FRONTEND_IMAGE}
+
+⚠️ Avertissements: ${ERROR_MESSAGE}
+
+🌐 Accès aux applications:
+--------------------------
+🔹 Frontend: http://localhost:4200
+🔹 Backend API: http://localhost:8082
+🔹 Prometheus: http://localhost:9090
+🔹 Grafana: http://localhost:3000
+
+Pour plus de détails, consultez les logs: ${BUILD_URL}console
+"""
+                    )
+                } else {
+                    mail(
+                        to: 'hamzosayari07@gmail.com',
+                        subject: "✅ DÉPLOIEMENT RÉUSSI: Kaddem Pipeline - ${DEPLOY_TIMESTAMP}",
+                        body: """🚀 Déploiement terminé avec succès 🚀
+
+📋 Résumé du déploiement:
+--------------------------
+🔹 Statut: SUCCÈS
+🔹 Date/Heure: ${DEPLOY_TIMESTAMP}
+🔹 Backend: ${BACKEND_IMAGE}
+🔹 Frontend: ${FRONTEND_IMAGE}
+
+🌐 Accès aux applications:
+--------------------------
+🔹 Frontend: http://localhost:4200
+🔹 Backend API: http://localhost:8082
+🔹 Prometheus: http://localhost:9090
+🔹 Grafana: http://localhost:3000
+🔹 JSON Server: http://localhost:3001
+
+📊 Statistiques:
+--------------------------
+Images Docker utilisées: 5
+Conteneurs démarrés: $(sh(script: 'docker ps | grep kaddem | wc -l', returnStdout: true).trim())
+
+Pour plus de détails, consultez les logs: ${BUILD_URL}console
+"""
+                    )
+                }
+            }
+        }
+        
+        failure {
+            mail(
+                to: 'hamzosayari07@gmail.com',
+                subject: "❌ ÉCHEC DU DÉPLOIEMENT: Kaddem Pipeline - ${DEPLOY_TIMESTAMP}",
+                body: """⛔ Déploiement échoué ⛔
+
+📋 Résumé du déploiement:
+--------------------------
+🔹 Statut: ÉCHEC
+🔹 Date/Heure: ${DEPLOY_TIMESTAMP}
+🔹 Backend: ${BACKEND_IMAGE}
+🔹 Frontend: ${FRONTEND_IMAGE}
+
+❌ Cause de l'échec:
+--------------------------
+${ERROR_MESSAGE ?: 'Erreur non spécifiée'}
+
+🔍 Vérifications à effectuer:
+--------------------------
+• Les images Docker existent-elles sur DockerHub?
+• Le fichier docker-compose.yml est-il correct?
+• Les ports requis sont-ils disponibles?
+• MySQL est-il configuré correctement?
+
+💡 Actions recommandées:
+--------------------------
+1. Vérifiez les logs Jenkins: ${BUILD_URL}console
+2. Vérifiez les logs Docker: docker logs kaddem-backend
+3. Assurez-vous que les images Docker sont accessibles
+4. Vérifiez la connectivité réseau entre les conteneurs
+
+Pour plus de détails, consultez les logs complets: ${BUILD_URL}console
+"""
+            )
+        }
+        
+        always {
+            script {
+                echo "Pipeline terminé avec statut: ${currentBuild.result}"
+                
+                // Nettoyage des variables d'environnement
+                env.ERROR_MESSAGE = ""
+                env.DEPLOY_STATUS = "SUCCESS"
             }
         }
     }
