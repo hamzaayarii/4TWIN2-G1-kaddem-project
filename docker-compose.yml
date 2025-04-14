@@ -9,8 +9,15 @@ services:
       - MYSQL_DATABASE=kaddem
     ports:
       - 3306:3306
+    volumes:
+      - db:/var/lib/mysql
     networks:
       - kaddem_network
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
     depends_on:
@@ -22,7 +29,7 @@ services:
     ports:
       - 8082:8089
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/kaddem?createDatabaseIfNotExist=true&userSSL=false&max_allowed_packet=15728640
+      - SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/kaddem?createDatabaseIfNotExist=true&useSSL=false&max_allowed_packet=15728640
       - SPRING_DATASOURCE_USERNAME=root
       - SPRING_DATASOURCE_PASSWORD=root
     stdin_open: true
