@@ -48,7 +48,7 @@ services:
       context: ./json-server
     container_name: json-server
     ports:
-      - "3000:3000"
+      - "3001:3000"
     networks:
       - kaddem_network
     restart: unless-stopped
