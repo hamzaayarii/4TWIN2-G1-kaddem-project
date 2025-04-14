@@ -78,6 +78,16 @@ pipeline {
                 }
             }
         }
+        stage('Store Build Number') {
+            steps {
+                script {
+                    // Write the build number to a file in the workspace
+                    writeFile file: 'backend-build-number.txt', text: "${BUILD_NUMBER}"
+                    // Archive this file so it can be accessed by other pipelines
+                    archiveArtifacts artifacts: 'backend-build-number.txt', fingerprint: true
+                }
+            }
+        }
         stage('Trigger Frontend Build') {
             steps {
                 build job: 'kaddem-frontend', wait: true
@@ -86,11 +96,44 @@ pipeline {
 
     }
 
-    post {
-        always {
-            script {
-                currentBuild.result = currentBuild.currentResult
-            }
-        }
-    }
-}
+   post {
+           success {
+               mail(
+                   to: 'hamzosayari07@gmail.com',
+                   subject: "✅ SUCCESS: Pipeline ${currentBuild.fullDisplayName}",
+                   body: """Pipeline completed successfully 🎉
+
+   Job: ${env.JOB_NAME}
+   Build: ${env.BUILD_NUMBER}
+   Duration: ${currentBuild.durationString}
+
+   Backend App URL: ${APP_URL}
+   Jenkins URL: ${JENKINS_URL}
+   Build Details: ${env.BUILD_URL}
+   """
+               )
+           }
+
+           failure {
+               mail(
+                   to: 'hamzosayari07@gmail.com',
+                   subject: "❌ FAILURE: Pipeline ${currentBuild.fullDisplayName}",
+                   body: """Pipeline failed 🚨
+
+   Job: ${env.JOB_NAME}
+   Build: ${env.BUILD_NUMBER}
+   Duration: ${currentBuild.durationString}
+
+   Check logs at: ${env.BUILD_URL}
+   """
+               )
+           }
+
+           always {
+               script {
+                   currentBuild.result = currentBuild.currentResult
+                   echo "Pipeline result: ${currentBuild.result}"
+               }
+           }
+       }
+   }

@@ -1,0 +1,8 @@
+scrape_configs:
+  - job_name: 'spring-boot'
+    metrics_path: '/kaddem/actuator/prometheus'
+    static_configs:
+      - targets: ['kaddem-backend:8089']
+  - job_name: 'mysql'
+    static_configs:
+      - targets: ['mysqldb:3306']

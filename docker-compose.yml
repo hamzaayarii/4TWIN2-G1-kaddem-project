@@ -18,6 +18,7 @@ services:
     depends_on:
       - mysqldb
     image: hamzabox/ayarihamza-4twin2-g1-kaddem-api:${BACKEND_TAG:-1}
+    #image: hamzabox/ayarihamza-g1-kaddem-backend:1
     # build: ./backend  # Uncomment if you want to build the backend locally
     restart: on-failure
     ports:
@@ -34,6 +35,7 @@ services:
 
   frontend:
     image: hamzabox/ayarihamza-4twin2-g1-kaddem-frontend:${FRONTEND_TAG:-1}
+    #image: hamzabox/ayarihamza-g1-kaddem-frontend:1
     container_name: kaddem-frontend
     ports:
       - 4200:80
@@ -54,6 +56,25 @@ services:
     networks:
       - kaddem_network
     restart: unless-stopped
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - kaddem_network
+
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    networks:
+      - kaddem_network
 
 volumes:
   db:
