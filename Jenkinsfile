@@ -53,33 +53,16 @@ pipeline {
         stage('Docker Login') {
             steps {
                 sh '''
-                    # Check if network exists and create if it doesn't
-                    echo "Checking Docker network status..."
-                    if ! docker network inspect devops_net >/dev/null 2>&1; then
-                        echo "Creating devops_net network..."
-                        docker network create devops_net
-                    else
-                        echo "devops_net network already exists"
-                    fi
+                    # Clean up any stale networks first
+                    echo "Cleaning up Docker networks..."
+                    docker network prune -f
                     
-                    # Try Docker login with retry mechanism
+                    # Create our network if it doesn't exist
+                    docker network create devops_net || true
+                    
+                    # Try Docker login
                     echo "Attempting Docker login..."
-                    MAX_RETRIES=3
-                    RETRY_COUNT=0
-                    while [ $RETRY_COUNT -lt $MAX_RETRIES ]; do
-                        if echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin; then
-                            echo "Docker login successful!"
-                            break
-                        fi
-                        RETRY_COUNT=$((RETRY_COUNT + 1))
-                        if [ $RETRY_COUNT -lt $MAX_RETRIES ]; then
-                            echo "Login attempt $RETRY_COUNT failed, retrying in 5 seconds..."
-                            sleep 5
-                        else
-                            echo "All login attempts failed"
-                            exit 1
-                        fi
-                    done
+                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
                 '''
             }
         }
