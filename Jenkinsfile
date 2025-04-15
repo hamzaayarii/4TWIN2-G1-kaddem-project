@@ -1,6 +1,5 @@
 // This pipeline implements CI/CD workflow with GitHub webhook integration
-// Version: 1.0.2 - Testing webhook trigger - Second attempt
-// Webhook test comment - This should trigger the pipeline
+// Version: 1.0.0 - Webhook Testing
 pipeline {
     agent any
     triggers {

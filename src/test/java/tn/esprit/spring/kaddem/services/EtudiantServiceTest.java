@@ -181,7 +181,7 @@ class EtudiantServiceTest {
     void testAssignEtudiantToDepartementWithInvalidIds() {
         Integer etudiantId = 999;
         Integer departementId = 999;
-        
+        //test git webhook
         when(etudiantRepository.findById(etudiantId)).thenReturn(Optional.empty());
         when(departementRepository.findById(departementId)).thenReturn(Optional.empty());
         
